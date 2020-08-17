@@ -18,6 +18,7 @@ class RequestLogServiceProvider extends ServiceProvider
     {
         // Publish resource to the project consuming this package
         $this->publishes([
+            __DIR__ . '/Configs/request-log.php'   => config_path('request-log.php'),
             __DIR__ . '/Models/RequestLog.php'     => app_path('RequestLog.php'),
             __DIR__ . '/Middleware/LogRequest.php' => app_path('/Http/Middleware/LogRequest.php'),
         ]);
@@ -25,8 +26,10 @@ class RequestLogServiceProvider extends ServiceProvider
         // Makes sure migrations are added to the pool of the migrations for the project
         $this->loadMigrationsFrom(__DIR__ . '/Migrations');
 
-        $kernel = $this->app->make(Kernel::class);
-        $kernel->pushMiddleware(\App\Http\Middleware\LogRequest::class);
+        if (config('request-log.enabled')) {
+            $kernel = $this->app->make(Kernel::class);
+            $kernel->pushMiddleware(\App\Http\Middleware\LogRequest::class);
+        }
     }
 
     /**
@@ -36,6 +39,8 @@ class RequestLogServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(\App\Http\Middleware\LogRequest::class);
+        if (config('request-log.enabled')) {
+            $this->app->singleton(\App\Http\Middleware\LogRequest::class);
+        }
     }
 }
