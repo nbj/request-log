@@ -12,5 +12,5 @@ return [
     |
     */
 
-    'enabled' => false
+    'enabled' => env('REQUEST_LOG_ENABLED', false)
 ];
