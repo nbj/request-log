@@ -40,7 +40,7 @@ class InstallRequestLog extends Command
 
         $filesThatNeedsToBeAdded = collect([
             '/app/Http/Middleware/LogRequest.php',
-            '/app/RequestRequest.php',
+            '/app/RequestLog.php',
             '/config/request-log.php',
         ]);
 
