@@ -4,6 +4,7 @@ namespace Nbj\RequestLog;
 
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
+use Nbj\RequestLog\Commands\InstallRequestLog;
 
 class RequestLogServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,12 @@ class RequestLogServiceProvider extends ServiceProvider
         // Makes sure migrations are added to the pool of the migrations for the project
         $this->loadMigrationsFrom(__DIR__ . '/Migrations');
 
+        // Add the installation command to Artisan
+        if ($this->app->runningInConsole()) {
+            $this->commands([InstallRequestLog::class]);
+        }
+
+        // Push Middleware to global middleware stack
         if (config('request-log.enabled')) {
             $kernel = $this->app->make(Kernel::class);
             $kernel->pushMiddleware(\App\Http\Middleware\LogRequest::class);
