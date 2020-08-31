@@ -40,8 +40,10 @@ class LogRequest
     /**
      * Writes the RequestLog to the database once the request has terminated
      *
-     * @param $request
-     * @param $response
+     * @param mixed $request
+     * @param mixed $response
+     *
+     * @return void
      */
     public function terminate($request, $response)
     {
