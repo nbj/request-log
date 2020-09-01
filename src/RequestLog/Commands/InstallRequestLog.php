@@ -63,7 +63,7 @@ class InstallRequestLog extends Command
             });
 
         // Write files to gitignore files
-        file_put_contents($pathToGitIgnoreFile, $filesThatNeedsToBeAdded->implode("\n"), FILE_APPEND);
+        file_put_contents($pathToGitIgnoreFile, $filesThatNeedsToBeAdded->implode("\n") . "\n", FILE_APPEND);
 
         return 0;
     }

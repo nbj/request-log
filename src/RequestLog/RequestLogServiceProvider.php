@@ -4,7 +4,9 @@ namespace Nbj\RequestLog;
 
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
+use Nbj\RequestLog\Components\StatusCode;
 use Nbj\RequestLog\Commands\InstallRequestLog;
+use Nbj\RequestLog\Components\PrettyPrintJson;
 
 class RequestLogServiceProvider extends ServiceProvider
 {
@@ -19,13 +21,24 @@ class RequestLogServiceProvider extends ServiceProvider
     {
         // Publish resource to the project consuming this package
         $this->publishes([
-            __DIR__ . '/Configs/request-log.php'   => config_path('request-log.php'),
-            __DIR__ . '/Models/RequestLog.php'     => app_path('RequestLog.php'),
-            __DIR__ . '/Middleware/LogRequest.php' => app_path('/Http/Middleware/LogRequest.php'),
+            __DIR__ . '/../../publishable/config/request-log.php'    => config_path('request-log.php'),
+            __DIR__ . '/../../publishable/models/RequestLog.php'     => app_path('RequestLog.php'),
+            __DIR__ . '/../../publishable/middleware/LogRequest.php' => app_path('/Http/Middleware/LogRequest.php'),
         ]);
 
-        // Makes sure migrations are added to the pool of the migrations for the project
-        $this->loadMigrationsFrom(__DIR__ . '/Migrations');
+        // Makes sure migrations and factories are added
+        $this->loadMigrationsFrom(__DIR__ . '/../../publishable/migrations');
+        $this->loadFactoriesFrom(__DIR__ . '/../../publishable/factories');
+
+        // Make sure that routes are added
+        $this->loadRoutesFrom(__DIR__ . '/../../publishable/routes/web.php');
+
+        // Make sure that views and view-components are added
+        $this->loadViewsFrom(__DIR__ . '/../../publishable/views', 'request-logs');
+        $this->loadViewComponentsAs('request-log', [
+            StatusCode::class,
+            PrettyPrintJson::class
+        ]);
 
         // Add the installation command to Artisan
         if ($this->app->runningInConsole()) {
