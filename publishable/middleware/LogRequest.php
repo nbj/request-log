@@ -49,6 +49,12 @@ class LogRequest
     {
         $this->endTime = microtime(true);
 
+        $executionTime = $this->endTime - $this->startTime;
+
+        if ($executionTime < 0) {
+            $executionTime = 0;
+        }
+
         RequestLog::create([
             'client_ip'          => $request->ip(),
             'user_agent'         => $request->userAgent(),
@@ -63,7 +69,7 @@ class LogRequest
             'response_headers'   => json_encode($response->headers->all()),
             'response_body'      => json_encode($response->original),
             'response_exception' => json_encode($response->exception),
-            'execution_time'     => $this->endTime - $this->startTime,
+            'execution_time'     => $executionTime,
         ]);
     }
 }

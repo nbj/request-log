@@ -68,8 +68,6 @@ class RequestLogServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if (config('request-log.enabled')) {
-            $this->app->singleton(\App\Http\Middleware\LogRequest::class);
-        }
+        $this->app->singleton(\App\Http\Middleware\LogRequest::class);
     }
 }
