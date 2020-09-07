@@ -3,6 +3,8 @@
 namespace Nbj\RequestLog;
 
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Nbj\RequestLog\Components\StatusCode;
 use Nbj\RequestLog\Commands\InstallRequestLog;
@@ -45,8 +47,15 @@ class RequestLogServiceProvider extends ServiceProvider
             $this->commands([InstallRequestLog::class]);
         }
 
+        $isEnabled = Cache::get('request-log.enabled');
+
+        if ($isEnabled === null) {
+            $isEnabled = Config::get('request-logs.enabled');
+            Cache::set('request-log.enabled', $isEnabled);
+        }
+
         // Push Middleware to global middleware stack
-        if (config('request-log.enabled')) {
+        if ($isEnabled) {
             $kernel = $this->app->make(Kernel::class);
             $kernel->pushMiddleware(\App\Http\Middleware\LogRequest::class);
         }

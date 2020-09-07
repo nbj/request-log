@@ -5,6 +5,7 @@ namespace Nbj\RequestLog\Controllers;
 use App\RequestLog;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class RequestLogController extends Controller
 {
@@ -33,7 +34,9 @@ class RequestLogController extends Controller
             "created_at"
         ]);
 
-        return view("request-logs::index")->with(["requestLogs" => $requestLogs]);
+        $isEnabled = Cache::get('request-log.enabled');
+
+        return view("request-logs::index")->with(["requestLogs" => $requestLogs, 'isEnabled' => $isEnabled]);
     }
 
     /**
@@ -45,9 +48,26 @@ class RequestLogController extends Controller
      */
     public function show(RequestLog $requestLog)
     {
-        return view("request-logs::show")->with(["requestLog" => $requestLog]);
+        $isEnabled = Cache::get('request-log.enabled');
+
+        if ($isEnabled) {
+            return view("request-logs::show")->with(["requestLog" => $requestLog]);
+        }
+
+        return redirect()->route('request-logs.index');
     }
 
+    /**
+     * Toggles if Request logging is enabled
+     *
+     * @return mixed
+     */
+    public function toggleEnabled()
+    {
+        Cache::set('request-log.enabled', Cache::get('request-log.enabled') == false);
+
+        return redirect()->route('request-logs.index');
+    }
 
     /**
      * Returns an Eloquent query where all filters have been applied.
