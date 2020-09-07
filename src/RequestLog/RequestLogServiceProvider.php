@@ -50,7 +50,7 @@ class RequestLogServiceProvider extends ServiceProvider
         $isEnabled = Cache::get('request-log.enabled');
 
         if ($isEnabled === null) {
-            $isEnabled = Config::get('request-logs.enabled');
+            $isEnabled = Config::get('request-log.enabled');
             Cache::set('request-log.enabled', $isEnabled);
         }
 
