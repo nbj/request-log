@@ -41,6 +41,7 @@ class InstallRequestLog extends Command
         $filesThatNeedsToBeAdded = collect([
             '/app/Http/Middleware/LogRequest.php',
             '/app/RequestLog.php',
+            '/app/RequestLogBlacklistedRoute.php',
             '/config/request-log.php',
         ]);
 

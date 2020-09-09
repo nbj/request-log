@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use App\RequestLog;
+use App\RequestLogBlacklistedRoute;
+use Illuminate\Support\Facades\Cache;
 
 class LogRequest
 {
@@ -55,6 +57,12 @@ class LogRequest
             $executionTime = 0;
         }
 
+        // We need to check if the path of the current request is blacklisted
+        // if it is we out-out here and to not write a RequestLog entry
+        if ($this->routeIsBlacklisted($request)) {
+            return;
+        }
+
         RequestLog::create([
             'client_ip'          => $request->ip(),
             'user_agent'         => $request->userAgent(),
@@ -71,5 +79,30 @@ class LogRequest
             'response_exception' => json_encode($response->exception),
             'execution_time'     => $executionTime,
         ]);
+    }
+
+    /**
+     * Checks if the path of the request is a blacklisted route
+     *
+     * @param $request
+     *
+     * @return bool
+     */
+    protected function routeIsBlacklisted($request)
+    {
+        // We get the list of blacklisted routes from the cache if present
+        // or get it from the database and cache it forever
+        $blacklistedRoutes = Cache::rememberForever('request-log.blacklistedUrls', function () {
+            return RequestLogBlacklistedRoute::all();
+        });
+
+        /** @var RequestLogBlacklistedRoute $route */
+        foreach ($blacklistedRoutes as $route) {
+            if (fnmatch($route->path, $request->path(), FNM_PATHNAME)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

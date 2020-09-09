@@ -23,9 +23,10 @@ class RequestLogServiceProvider extends ServiceProvider
     {
         // Publish resource to the project consuming this package
         $this->publishes([
-            __DIR__ . '/../../publishable/config/request-log.php'    => config_path('request-log.php'),
-            __DIR__ . '/../../publishable/models/RequestLog.php'     => app_path('RequestLog.php'),
-            __DIR__ . '/../../publishable/middleware/LogRequest.php' => app_path('/Http/Middleware/LogRequest.php'),
+            __DIR__ . '/../../publishable/config/request-log.php'                => config_path('request-log.php'),
+            __DIR__ . '/../../publishable/models/RequestLog.php'                 => app_path('RequestLog.php'),
+            __DIR__ . '/../../publishable/models/RequestLogBlacklistedRoute.php' => app_path('RequestLogBlacklistedRoute.php'),
+            __DIR__ . '/../../publishable/middleware/LogRequest.php'             => app_path('/Http/Middleware/LogRequest.php'),
         ]);
 
         // Makes sure migrations and factories are added
