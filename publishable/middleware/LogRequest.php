@@ -84,7 +84,7 @@ class LogRequest
     /**
      * Checks if the path of the request is a blacklisted route
      *
-     * @param $request
+     * @param mixed $request
      *
      * @return bool
      */
