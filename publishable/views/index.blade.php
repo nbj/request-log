@@ -7,11 +7,27 @@
             <div class="col-12">
 
                 <div class="pt-5">
-                    <div class="form-group form-inline pb-5">
+                    <div class="form-group form-inline">
                         <h1 class="">Request Logs: </h1>
                         <div class="float-right">
-                            <a href="{{ route('request-logs.toggle-enabled') }}" class="btn ml-2 {{ $isEnabled ? 'disabled btn-secondary' : 'btn-success' }}">Enable</a>
-                            <a href="{{ route('request-logs.toggle-enabled') }}" class="btn ml-2 {{ $isEnabled ? 'btn-danger' : 'disabled btn-secondary' }}">Disable</a>
+                            <a href="{{ route('request-logs.toggle') }}" class="btn ml-2 {{ $isEnabled ? 'disabled btn-secondary' : 'btn-success' }}">Enable</a>
+                            <a href="{{ route('request-logs.toggle') }}" class="btn ml-2 {{ $isEnabled ? 'btn-danger' : 'disabled btn-secondary' }}">Disable</a>
+                        </div>
+                    </div>
+                    <div class="pb-5">
+                        <div class="mr-5">
+                            <div class="badge mr-2">{{ $requestLogs->total() }}</div><span class="mr-5"><strong>RequestLogs in total</strong></span>
+                            <div class="badge badge-secondary mr-2">{{ $numberOf1XXs }}</div><span class="mr-4"><strong>1XX</strong></span>
+                            <div class="badge badge-success mr-2">{{ $numberOf2XXs }}</div><span class="mr-4"><strong>2XX</strong></span>
+                            <div class="badge badge-info mr-2">{{ $numberOf3XXs }}</div><span class="mr-4"><strong>3XX</strong></span>
+                            <div class="badge badge-warning mr-2">{{ $numberOf4XXs }}</div><span class="mr-4"><strong>4XX</strong></span>
+                            <div class="badge badge-danger mr-2">{{ $numberOf5XXs }}</div><span class="mr-5"><strong>5XX</strong></span>
+                            <form method="post" action="{{ route('request-logs.delete') }}">
+                                {{ csrf_field() }}
+                                <input type="hidden" name="_method" value="delete">
+                                <button type="submit" class="ml-3 btn btn-sm btn-danger float-right">Clear all logs</button>
+                            </form>
+                            <a href="{{ route('blacklisted-routes.index') }}" class="btn btn-info btn-sm float-right">Manage blacklisted routes</a>
                         </div>
                     </div>
 
@@ -68,7 +84,7 @@
                                 <th>Query</th>
                                 <th>Execution Time</th>
                                 <th>Date</th>
-                                <th>Log</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -81,7 +97,7 @@
                                     <td>{{ $log->query_string }}</td>
                                     <td>{{ number_format($log->execution_time, 4) }}</td>
                                     <td>{{ $log->created_at }}</td>
-                                    <td><a href="/request-logs/{{ $log->id }}" class="btn btn-sm btn-outline-primary">Full</a>
+                                    <td><a href="{{ route('request-logs.show', $log) }}" class="btn btn-sm btn-outline-primary">Inspect</a>
                                 </tr>
                             @endforeach
                             </tbody>

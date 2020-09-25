@@ -27,8 +27,12 @@ class RequestLogBlacklistedRoute extends Model
     protected static function booted()
     {
         // We make sure to bust the blacklisted routes cache whenever a new entry is created
-        // or an existing one is updated
+        // or an existing one is updated or deleted
         static::saved(function () {
+            Cache::forget('request-log.blacklistedUrls');
+        });
+
+        static::deleted(function () {
             Cache::forget('request-log.blacklistedUrls');
         });
     }

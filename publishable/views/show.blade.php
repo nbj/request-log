@@ -2,8 +2,15 @@
 
 @section("content")
 
-    <div class="container-flex mt-5 col-10 offset-1">
+    <div class="container-flex mt-5 col-12">
         <div class="row">
+
+            <div class="form-group form-inline col-12">
+                <h1 class="">Inspecting Request Log: <strong>#{{ $requestLog->id }}</strong></h1>
+                <div class="float-right">
+                    <a href="{{ route('request-logs.index') }}" class="btn ml-2 btn-danger">Back</a>
+                </div>
+            </div>
 
             <!-- Client -->
             <div class="col-6">

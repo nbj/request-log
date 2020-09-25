@@ -33,9 +33,9 @@ class StatusCode extends Component
     public function status()
     {
         $statuses = collect([
-            "1" => "warning",
+            "1" => "secondary",
             "2" => "success",
-            "3" => "warning",
+            "3" => "info",
             "4" => "warning",
             "5" => "danger",
         ]);

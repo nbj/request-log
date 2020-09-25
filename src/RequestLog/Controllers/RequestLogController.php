@@ -2,8 +2,10 @@
 
 namespace Nbj\RequestLog\Controllers;
 
+use Exception;
 use App\RequestLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 
@@ -16,7 +18,7 @@ class RequestLogController extends Controller
      *
      * @return View|Factory
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function index(Request $request)
     {
@@ -34,9 +36,19 @@ class RequestLogController extends Controller
             "created_at"
         ]);
 
+        $segmentedNumberOfStatuses = $this->getSegmentedNumberOfStatuses();
+
         $isEnabled = Cache::get('request-log.enabled');
 
-        return view("request-logs::index")->with(["requestLogs" => $requestLogs, 'isEnabled' => $isEnabled]);
+        return view("request-logs::index")->with([
+            "requestLogs"  => $requestLogs,
+            'isEnabled'    => $isEnabled,
+            'numberOf1XXs' => $segmentedNumberOfStatuses->get('one'),
+            'numberOf2XXs' => $segmentedNumberOfStatuses->get('two'),
+            'numberOf3XXs' => $segmentedNumberOfStatuses->get('three'),
+            'numberOf4XXs' => $segmentedNumberOfStatuses->get('four'),
+            'numberOf5XXs' => $segmentedNumberOfStatuses->get('five'),
+        ]);
     }
 
     /**
@@ -62,9 +74,21 @@ class RequestLogController extends Controller
      *
      * @return mixed
      */
-    public function toggleEnabled()
+    public function toggle()
     {
         Cache::set('request-log.enabled', Cache::get('request-log.enabled') == false);
+
+        return redirect()->route('request-logs.index');
+    }
+
+    /**
+     * Deletes all request logs
+     *
+     * @return mixed
+     */
+    public function delete()
+    {
+        RequestLog::query()->delete();
 
         return redirect()->route('request-logs.index');
     }
@@ -76,7 +100,7 @@ class RequestLogController extends Controller
      *
      * @return Builder
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getFilteredLogQuery(Request $request)
     {
@@ -110,5 +134,50 @@ class RequestLogController extends Controller
             })
 
             ->toArray();
+    }
+
+    /**
+     * Gets a collection of segmented number of requests
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    protected function getSegmentedNumberOfStatuses()
+    {
+        $query = <<<SQL
+select 
+	a.one, 
+	b.two,
+	c.three,
+	d.four,
+	e.five
+from 
+	(
+		select count(*) as one 
+		from request_logs
+		where status like '1__'
+	) as a,
+	(
+		select count(*) as two 
+		from request_logs 
+		where status like '2__'
+	) as b,
+	(
+		select count(*) as three 
+		from request_logs 
+		where status like '3__'
+	) as c,
+	(
+		select count(*) as four 
+		from request_logs 
+		where status like '4__'
+	) as d,
+	(
+		select count(*) as five 
+		from request_logs 
+		where status like '5__'
+	) as e
+SQL;
+
+        return collect(DB::select($query)[0]);
     }
 }

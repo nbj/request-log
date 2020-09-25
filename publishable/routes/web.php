@@ -2,12 +2,20 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::namespace('Nbj\RequestLog\Controllers')->group(function () {
-    Route::resource("request-logs", "RequestLogController")
-        ->only(["index", "show"])
+Route::namespace('Nbj\RequestLog\Controllers')->prefix('vendor')->group(function () {
+    Route::get('request-logs/toggle', 'RequestLogController@toggle')
+        ->name('request-logs.toggle')
         ->middleware('web');
 
-    Route::get('/toggle-request-logging', 'RequestLogController@toggleEnabled')
-        ->name('request-logs.toggle-enabled')
+    Route::delete('request-logs/delete', 'RequestLogController@delete')
+        ->name('request-logs.delete')
+        ->middleware('web');
+
+    Route::resource('request-logs/blacklisted-routes', 'BlacklistedRoutesController')
+        ->only(['index', 'create', 'store', 'destroy'])
+        ->middleware('web');
+
+    Route::resource('request-logs', 'RequestLogController')
+        ->only(['index', 'show'])
         ->middleware('web');
 });
