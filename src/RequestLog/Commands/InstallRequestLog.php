@@ -1,6 +1,6 @@
 <?php
 
-namespace Nbj\RequestLog\Commands;
+namespace Cego\RequestLog\Commands;
 
 use Illuminate\Console\Command;
 
@@ -31,7 +31,7 @@ class InstallRequestLog extends Command
 
         // Publish files
         $this->call('vendor:publish', [
-            '--provider' => "Nbj\RequestLog\RequestLogServiceProvider",
+            '--provider' => "Cego\RequestLog\RequestLogServiceProvider",
             '--force'    => true
         ]);
 

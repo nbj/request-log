@@ -1,6 +1,6 @@
 <?php
 
-namespace Nbj\RequestLog\Components;
+namespace Cego\RequestLog\Components;
 
 use Illuminate\View\View;
 use Illuminate\View\Component;

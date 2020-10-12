@@ -1,6 +1,6 @@
 <?php
 
-namespace Nbj\RequestLog;
+namespace Cego\RequestLog;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -8,9 +8,9 @@ use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
-use Nbj\RequestLog\Components\StatusCode;
-use Nbj\RequestLog\Commands\InstallRequestLog;
-use Nbj\RequestLog\Components\PrettyPrintJson;
+use Cego\RequestLog\Components\StatusCode;
+use Cego\RequestLog\Commands\InstallRequestLog;
+use Cego\RequestLog\Components\PrettyPrintJson;
 
 class RequestLogServiceProvider extends ServiceProvider
 {

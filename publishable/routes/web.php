@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::namespace('Nbj\RequestLog\Controllers')->prefix('vendor')->group(function () {
+Route::namespace('Cego\RequestLog\Controllers')->prefix('vendor')->group(function () {
     Route::get('request-logs/toggle', 'RequestLogController@toggle')
         ->name('request-logs.toggle')
         ->middleware('web');

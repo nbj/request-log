@@ -1,6 +1,6 @@
 <?php
 
-namespace Nbj\RequestLog\Controllers;
+namespace Cego\RequestLog\Controllers;
 
 use Exception;
 use App\RequestLog;

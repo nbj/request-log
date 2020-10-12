@@ -1,5 +1,5 @@
 {
-    "name": "nbj/request-log",
+    "name": "cego/request-log",
     "description": "Package for laravel that enables the logging of all incoming requests",
     "type": "project",
     "license": "MIT",
@@ -19,13 +19,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Nbj\\": "src/"
+            "Cego\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Nbj\\RequestLog\\RequestLogServiceProvider"
+                "Cego\\RequestLog\\RequestLogServiceProvider"
             ]
         }
     }
