@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace Cego\RequestLog\Middleware;
 
 use Closure;
-use App\RequestLog;
-use App\RequestLogBlacklistedRoute;
 use Illuminate\Support\Facades\Cache;
+use Cego\RequestLog\Models\RequestLog;
+use Cego\RequestLog\Models\RequestLogBlacklistedRoute;
 
 class LogRequest
 {

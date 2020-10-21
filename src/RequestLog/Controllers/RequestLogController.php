@@ -3,11 +3,11 @@
 namespace Cego\RequestLog\Controllers;
 
 use Exception;
-use App\RequestLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
+use Cego\RequestLog\Models\RequestLog;
 
 class RequestLogController extends Controller
 {

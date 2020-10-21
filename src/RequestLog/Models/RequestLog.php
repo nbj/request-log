@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Cego\RequestLog\Models;
 
 use Carbon\Carbon;
 use Illuminate\Support\Collection;

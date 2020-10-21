@@ -8,9 +8,12 @@ use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
+use Cego\RequestLog\Middleware\LogRequest;
 use Cego\RequestLog\Components\StatusCode;
+use Illuminate\Console\Scheduling\Schedule;
 use Cego\RequestLog\Commands\InstallRequestLog;
 use Cego\RequestLog\Components\PrettyPrintJson;
+use Cego\RequestLog\Commands\AutomaticLogCleanup;
 
 class RequestLogServiceProvider extends ServiceProvider
 {
@@ -25,10 +28,7 @@ class RequestLogServiceProvider extends ServiceProvider
     {
         // Publish resource to the project consuming this package
         $this->publishes([
-            __DIR__ . '/../../publishable/config/request-log.php'                => config_path('request-log.php'),
-            __DIR__ . '/../../publishable/models/RequestLog.php'                 => app_path('RequestLog.php'),
-            __DIR__ . '/../../publishable/models/RequestLogBlacklistedRoute.php' => app_path('RequestLogBlacklistedRoute.php'),
-            __DIR__ . '/../../publishable/middleware/LogRequest.php'             => app_path('/Http/Middleware/LogRequest.php'),
+            __DIR__ . '/../../publishable/config/request-log.php' => config_path('request-log.php'),
         ]);
 
         // Makes sure migrations and factories are added
@@ -47,7 +47,9 @@ class RequestLogServiceProvider extends ServiceProvider
 
         // Add the installation command to Artisan
         if ($this->app->runningInConsole()) {
-            $this->commands([InstallRequestLog::class]);
+            $this->commands([
+                AutomaticLogCleanup::class
+            ]);
         }
 
         // When this service provider is loaded in CI pipeline and using a
@@ -66,10 +68,15 @@ class RequestLogServiceProvider extends ServiceProvider
             Log::notice(sprintf('Cache driver is not available - Message: %s', $exception->getMessage()));
         }
 
-        // Push Middleware to global middleware stack
         if ($isEnabled) {
+            // Push Middleware to global middleware stack
             $kernel = $this->app->make(Kernel::class);
-            $kernel->pushMiddleware(\App\Http\Middleware\LogRequest::class);
+            $kernel->pushMiddleware(LogRequest::class);
+
+            // Add automatic clean up to scheduler
+            $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
+                $schedule->command('clean:request-logs')->dailyAt('03:00');
+            });
         }
     }
 
@@ -80,6 +87,6 @@ class RequestLogServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(\App\Http\Middleware\LogRequest::class);
+        $this->app->singleton(LogRequest::class);
     }
 }
