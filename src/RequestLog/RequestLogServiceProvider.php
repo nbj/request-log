@@ -11,7 +11,6 @@ use Illuminate\Support\ServiceProvider;
 use Cego\RequestLog\Middleware\LogRequest;
 use Cego\RequestLog\Components\StatusCode;
 use Illuminate\Console\Scheduling\Schedule;
-use Cego\RequestLog\Commands\InstallRequestLog;
 use Cego\RequestLog\Components\PrettyPrintJson;
 use Cego\RequestLog\Commands\AutomaticLogCleanup;
 
