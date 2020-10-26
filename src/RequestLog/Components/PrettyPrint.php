@@ -50,7 +50,7 @@ class PrettyPrint extends Component
             return $this->prettyPrintJson($data);
         } catch (Exception $jsonException) {
             // If invalid json then just display the data
-            return $this->printArbitraryReadable($data);
+            return print_r($data, true);
         }
     }
 
@@ -65,37 +65,19 @@ class PrettyPrint extends Component
      */
     private function prettyPrintJson($data)
     {
-        if (is_string($data) && strtolower($data) === "null") {
-            return "{}";
+        if ( ! is_string($data) && ! is_array($data) && ! is_object($data)) {
+            return '{}';
+        }
+
+        if (is_string($data) && mb_strtolower($data) === 'null') {
+            return '{}';
         }
 
         // If it is already in json format, we then need to turn it into an object, so it can be reformatted in pretty print
         if (is_string($data)) {
-            try {
-                $data = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
-            } catch (Exception $jsonException) {
-                return $data;
-            }
+            $data = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
         }
 
         return json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
-    }
-
-    /**
-     * @param object|array|string $data
-     *
-     * @return string
-     */
-    private function printArbitraryReadable($data)
-    {
-        // If it is a string, we then escape any html so it can be displayed as a string
-        if (is_string($data)) {
-            $data = htmlentities($data);
-        }
-
-        /** @var string $response */
-        $response = print_r($data, true);
-
-        return $response;
     }
 }
