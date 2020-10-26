@@ -4,6 +4,7 @@ namespace Cego\RequestLog;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -77,6 +78,8 @@ class RequestLogServiceProvider extends ServiceProvider
                 $schedule->command('clean:request-logs')->dailyAt('03:00');
             });
         }
+
+        Paginator::useBootstrap();
     }
 
     /**
