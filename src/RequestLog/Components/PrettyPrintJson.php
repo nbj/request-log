@@ -2,6 +2,7 @@
 
 namespace Cego\RequestLog\Components;
 
+use Exception;
 use Illuminate\View\View;
 use Illuminate\View\Component;
 use Illuminate\Contracts\View\Factory;
@@ -18,13 +19,13 @@ class PrettyPrintJson extends Component
     /**
      * Create a new component instance.
      *
-     * @param object|array|string $json
+     * @param object|array|string $data
      *
      * @throws \JsonException
      */
-    public function __construct($json)
+    public function __construct($data)
     {
-        $this->json = $this->prettyPrintJson($json);
+        $this->json = $this->prettyPrint($data);
     }
 
     /**
@@ -35,6 +36,17 @@ class PrettyPrintJson extends Component
     public function render()
     {
         return view('request-logs::components.pretty-print-json');
+    }
+
+    private function prettyPrint($data)
+    {
+        try {
+            // Try to pretty print as json
+            return $this->prettyPrintJson($data);
+        } catch (Exception $jsonException) {
+            // Otherwise pretty print whatever data given
+            return print_r($data, true);
+        }
     }
 
     /**
@@ -54,7 +66,11 @@ class PrettyPrintJson extends Component
 
         // If it is already in json format, we then need to turn it into an object, so it can be reformatted in pretty print
         if (is_string($data)) {
-            $data = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
+            try {
+                $data = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
+            } catch (Exception $jsonException) {
+                return $data;
+            }
         }
 
         return json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
