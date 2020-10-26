@@ -38,14 +38,19 @@ class PrettyPrintJson extends Component
         return view('request-logs::components.pretty-print-json');
     }
 
+    /**
+     * @param object|array|string $data
+     *
+     * @return string
+     */
     private function prettyPrint($data)
     {
         try {
             // Try to pretty print as json
             return $this->prettyPrintJson($data);
         } catch (Exception $jsonException) {
-            // Otherwise pretty print whatever data given
-            return print_r($data, true);
+            // If invalid json then just display the data
+            return $this->printArbitraryReadable($data);
         }
     }
 
@@ -74,5 +79,23 @@ class PrettyPrintJson extends Component
         }
 
         return json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * @param object|array|string $data
+     *
+     * @return string
+     */
+    private function printArbitraryReadable($data)
+    {
+        // If it is a string, we then escape any html so it can be displayed as a string
+        if (is_string($data)) {
+            $data = htmlentities($data);
+        }
+
+        /** @var string $response */
+        $response = print_r($data, true);
+
+        return $response;
     }
 }
