@@ -11,7 +11,7 @@ use Illuminate\Support\ServiceProvider;
 use Cego\RequestLog\Middleware\LogRequest;
 use Cego\RequestLog\Components\StatusCode;
 use Illuminate\Console\Scheduling\Schedule;
-use Cego\RequestLog\Components\PrettyPrintJson;
+use Cego\RequestLog\Components\PrettyPrint;
 use Cego\RequestLog\Commands\AutomaticLogCleanup;
 
 class RequestLogServiceProvider extends ServiceProvider
@@ -41,7 +41,7 @@ class RequestLogServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../../publishable/views', 'request-logs');
         $this->loadViewComponentsAs('request-log', [
             StatusCode::class,
-            PrettyPrintJson::class
+            PrettyPrint::class
         ]);
 
         // Add the installation command to Artisan
