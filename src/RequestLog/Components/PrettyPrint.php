@@ -35,7 +35,7 @@ class PrettyPrint extends Component
      */
     public function render()
     {
-        return view('request-logs::components.pretty-print-json');
+        return view('request-logs::components.pretty-print');
     }
 
     /**
