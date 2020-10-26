@@ -79,6 +79,7 @@ class RequestLogServiceProvider extends ServiceProvider
             });
         }
 
+        // Use bootstrap for the paginator instead of tailwind, since the rest of the interface uses bootstrap
         Paginator::useBootstrap();
     }
 
