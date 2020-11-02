@@ -73,9 +73,9 @@ class LogRequest
             'path'               => $request->path(),
             'query_string'       => json_encode($request->query()),
             'request_headers'    => json_encode($request->headers->all()),
-            'request_body'       => json_encode($request->all()),
+            'request_body'       => $request->getContent() ?: '{}',
             'response_headers'   => json_encode($response->headers->all()),
-            'response_body'      => json_encode($response->original),
+            'response_body'      => $response->getContent() ?: '{}',
             'response_exception' => json_encode($response->exception),
             'execution_time'     => $executionTime,
         ]);

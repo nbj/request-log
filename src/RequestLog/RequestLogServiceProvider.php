@@ -4,6 +4,7 @@ namespace Cego\RequestLog;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -11,8 +12,7 @@ use Illuminate\Support\ServiceProvider;
 use Cego\RequestLog\Middleware\LogRequest;
 use Cego\RequestLog\Components\StatusCode;
 use Illuminate\Console\Scheduling\Schedule;
-use Cego\RequestLog\Commands\InstallRequestLog;
-use Cego\RequestLog\Components\PrettyPrintJson;
+use Cego\RequestLog\Components\PrettyPrint;
 use Cego\RequestLog\Commands\AutomaticLogCleanup;
 
 class RequestLogServiceProvider extends ServiceProvider
@@ -42,7 +42,7 @@ class RequestLogServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../../publishable/views', 'request-logs');
         $this->loadViewComponentsAs('request-log', [
             StatusCode::class,
-            PrettyPrintJson::class
+            PrettyPrint::class
         ]);
 
         // Add the installation command to Artisan
@@ -77,6 +77,20 @@ class RequestLogServiceProvider extends ServiceProvider
             $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
                 $schedule->command('clean:request-logs')->dailyAt('03:00');
             });
+        }
+
+        $this->setPaginatorStyling();
+    }
+
+    /**
+     * Sets the paginator styling to bootstrap if using Laravel 8
+     */
+    private function setPaginatorStyling()
+    {
+        // If Laravel version 8
+        if (version_compare(app()->version(), '8.0.0', '>=') === true) {
+            // Use bootstrap for the paginator instead of tailwind, since the rest of the interface uses bootstrap
+            Paginator::useBootstrap();
         }
     }
 
