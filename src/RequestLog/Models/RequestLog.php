@@ -35,10 +35,13 @@ class RequestLog extends Model
             return $query;
         }
 
-        // We wrap the orWhere's in a closure to make they are added inside parentheses
+        // We wrap the orWhere's in a closure to so they are added inside parentheses
         return $query->where(function (Builder $query) use ($statusCodes) {
             foreach ($statusCodes as $code) {
-                $query->orWhere('status', 'like', sprintf('%s%%', $code));
+                $query->orWhere(function (Builder $query) use ($code) {
+                    $query->where('status', '>=', $code * 100)
+                        ->where('status', "<", ($code + 1) * 100);
+                });
             }
         });
     }
