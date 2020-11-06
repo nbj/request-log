@@ -180,4 +180,19 @@ SQL;
 
         return collect(DB::select($query)[0]);
     }
+
+    /**
+     * Frontend view for displaying a single full requestLog
+     *
+     * @param RequestLog $requestLog
+     *
+     * @return View|Factory
+     * @throws Exception
+     */
+    public function destroy(RequestLog $requestLog)
+    {
+        $requestLog->delete();
+
+        return redirect()->back();
+    }
 }

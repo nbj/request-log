@@ -97,7 +97,14 @@
                                     <td>{{ $log->query_string }}</td>
                                     <td>{{ number_format($log->execution_time, 4) }}</td>
                                     <td>{{ $log->created_at }}</td>
-                                    <td><a href="{{ route('request-logs.show', $log) }}" class="btn btn-sm btn-outline-primary">Inspect</a>
+                                    <td>
+                                        <a href="{{ route('request-logs.show', $log) }}" class="btn btn-sm btn-outline-primary">Inspect</a>
+                                        <form class="d-inline-block" method="POST" action="{{ route('request-logs.destroy', $log) }}">
+                                            {{ csrf_field() }}
+                                            {{ method_field('DELETE') }}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger py-0 ml-1" style="font-size: 0.8em;">Delete</button>
+                                        </form>
+                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>
