@@ -16,6 +16,6 @@ Route::namespace('Cego\RequestLog\Controllers')->prefix('vendor')->group(functio
         ->middleware('web');
 
     Route::resource('request-logs', 'RequestLogController')
-        ->only(['index', 'show'])
+        ->only(['index', 'show', 'destroy'])
         ->middleware('web');
 });
