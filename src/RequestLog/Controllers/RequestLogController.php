@@ -154,27 +154,27 @@ from
 	(
 		select count(*) as one 
 		from request_logs
-		where status like '1__'
+		where status between 100 AND 199
 	) as a,
 	(
 		select count(*) as two 
 		from request_logs 
-		where status like '2__'
+		where status between 200 AND 299
 	) as b,
 	(
 		select count(*) as three 
 		from request_logs 
-		where status like '3__'
+		where status between 300 AND 399
 	) as c,
 	(
 		select count(*) as four 
 		from request_logs 
-		where status like '4__'
+		where status between 400 AND 499
 	) as d,
 	(
 		select count(*) as five 
 		from request_logs 
-		where status like '5__'
+		where status between 500 AND 599
 	) as e
 SQL;
 

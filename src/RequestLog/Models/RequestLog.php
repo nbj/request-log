@@ -38,11 +38,8 @@ class RequestLog extends Model
         // We wrap the orWhere's in a closure to so they are added inside parentheses
         return $query->where(function (Builder $query) use ($statusCodes) {
             foreach ($statusCodes as $code) {
-                $query->orWhere(function (Builder $query) use ($code) {
-                    // Is much faster than alternatives such as (LIKE '$code__') or (LIKE '$code%')
-                    $query->where('status', '>=', $code * 100)
-                        ->where('status', "<", ($code + 1) * 100);
-                });
+                // Is much faster than alternatives such as (LIKE '$code__') or (LIKE '$code%')
+                $query->orWhereBetween('status', [sprintf('%s00', $code), sprintf('%s99', $code)]);
             }
         });
     }
