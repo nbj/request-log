@@ -39,6 +39,7 @@ class RequestLog extends Model
         return $query->where(function (Builder $query) use ($statusCodes) {
             foreach ($statusCodes as $code) {
                 $query->orWhere(function (Builder $query) use ($code) {
+                    // Is much faster than alternatives such as (LIKE '$code__') or (LIKE '$code%')
                     $query->where('status', '>=', $code * 100)
                         ->where('status', "<", ($code + 1) * 100);
                 });
