@@ -35,7 +35,7 @@ class RequestLog extends Model
             return $query;
         }
 
-        // We wrap the orWhere's in a closure so they are added inside parentheses
+        // We wrap the orWhere's in a closure to make sure they are added inside parentheses
         return $query->where(function (Builder $query) use ($statusCodes) {
             foreach ($statusCodes as $code) {
                 // Is much faster than alternatives such as (LIKE '$code__') or (LIKE '$code%')
