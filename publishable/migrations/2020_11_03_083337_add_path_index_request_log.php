@@ -26,12 +26,7 @@ class AddPathIndexRequestLog extends Migration
     public function down(): void
     {
         Schema::table('request_logs', static function (Blueprint $table) {
-            $table->dropIndex("request_logs_created_at_index");
-            $table->dropIndex("request_logs_status_index");
-        });
-
-        Schema::table('request_log_blacklisted_routes', static function (Blueprint $table) {
-            $table->dropIndex("request_log_blacklisted_routes_created_at_index");
+            $table->dropIndex("request_logs_path_index");
         });
     }
 }
