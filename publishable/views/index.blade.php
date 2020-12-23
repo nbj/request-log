@@ -36,6 +36,9 @@
                             <form method="get" class="float-right form-inline">
                                 <div class="form-group mr-5">
                                     <label class="form-check-label mr-3">
+                                        From: <input class="form-control ml-2" type="text" name="path_regex" style="width: 250px" placeholder="(SQL LIKE)" value="{{ old("path_regex") }}">
+                                    </label>
+                                    <label class="form-check-label mr-3">
                                         From: <input class="form-control ml-2" type="date" name="from" style="width: 150px" placeholder="dd-mm-yyyy" value="{{ old("from") }}">
                                     </label>
                                     <label class="form-check-label">

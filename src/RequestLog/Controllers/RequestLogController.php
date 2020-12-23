@@ -106,6 +106,7 @@ class RequestLogController extends Controller
     {
         return RequestLog::latest()
             ->whereStatusGroup($this->getFilteredStatusGroups($request))
+            ->wherePath($request->get("path_regex"))
             ->whereCreatedAtDateBetween($request->get("from"), $request->get("to"));
     }
 
