@@ -72,4 +72,26 @@ class RequestLog extends Model
             return $query;
         }
     }
+
+    /**
+     * Scopes for requests logs with certain paths
+     *
+     * @param Builder $query
+     * @param string|null $pathRegex
+     *
+     * @return Builder
+     */
+    public function scopeWherePath(Builder $query, ?string $pathRegex)
+    {
+        if (empty($pathRegex)) {
+            return $query;
+        }
+
+        // The visual first forward-slash is only a front end thing, and not stored in DB
+        // So it can be confusing when searching for paths like "/abc/aaa" and then nothing
+        // showing up, because the first forward slash does not exist.
+        $pathRegex = ltrim($pathRegex, "/");
+
+        return $query->where("path", "LIKE", $pathRegex);
+    }
 }
