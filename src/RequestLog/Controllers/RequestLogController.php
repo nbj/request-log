@@ -88,7 +88,9 @@ class RequestLogController extends Controller
      */
     public function delete()
     {
-        RequestLog::query()->delete();
+        // Truncate is much faster than ->delete
+        // since it does not need to log each individual row deletion
+        RequestLog::query()->truncate();
 
         return redirect()->route('request-logs.index');
     }
