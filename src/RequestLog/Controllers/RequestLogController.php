@@ -88,7 +88,7 @@ class RequestLogController extends Controller
      */
     public function delete()
     {
-        RequestLog::query()->delete();
+        RequestLog::query()->truncate();
 
         return redirect()->route('request-logs.index');
     }
