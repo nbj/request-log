@@ -24,5 +24,5 @@ return [
     | Sets the retention of logs in number of days
     */
 
-    'logRetentionNumberOfDays' => 90,
+    'logRetentionNumberOfDays' => 2,
 ];
