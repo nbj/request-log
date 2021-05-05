@@ -106,10 +106,11 @@ class RequestLogController extends Controller
      */
     protected function getFilteredLogQuery(Request $request)
     {
-        return RequestLog::latest()
+        return RequestLog::query()
             ->whereStatusGroup($this->getFilteredStatusGroups($request))
             ->wherePath($request->get("path_regex"))
-            ->whereCreatedAtDateBetween($request->get("from"), $request->get("to"));
+            ->whereCreatedAtDateBetween($request->get("from"), $request->get("to"))
+            ->orderByDesc('id');
     }
 
     /**
