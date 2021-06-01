@@ -21,12 +21,12 @@ class RequestLog extends Model
     /**
      * Scopes a query to only contain request logs with the given list of status codes
      *
-     * @param Builder $query
+     * @param Builder|\Illuminate\Database\Query\Builder $query
      * @param array $statusCodes
      *
-     * @return Builder
+     * @return Builder|\Illuminate\Database\Query\Builder
      */
-    public function scopeWhereStatusGroup(Builder $query, array $statusCodes = [])
+    public function scopeWhereStatusGroup($query, array $statusCodes = [])
     {
         $statusCodes = new Collection($statusCodes);
 
@@ -36,7 +36,7 @@ class RequestLog extends Model
         }
 
         // We wrap the orWhere's in a closure to make sure they are added inside parentheses
-        return $query->where(function (Builder $query) use ($statusCodes) {
+        return $query->where(function ($query) use ($statusCodes) {
             foreach ($statusCodes as $code) {
                 // Is much faster than alternatives such as (LIKE '$code__') or (LIKE '$code%')
                 $query->orWhereBetween('status', [sprintf('%s00', $code), sprintf('%s99', $code)]);
@@ -48,13 +48,13 @@ class RequestLog extends Model
      * Scopes a query to only contain request logs by created_at timestamps in a specific period
      * $from and $to are both optional
      *
-     * @param Builder $query
+     * @param Builder|\Illuminate\Database\Query\Builder $query
      * @param mixed $from
      * @param mixed $to
      *
-     * @return Builder
+     * @return Builder|\Illuminate\Database\Query\Builder
      */
-    public function scopeWhereCreatedAtDateBetween(Builder $query, $from = null, $to = null)
+    public function scopeWhereCreatedAtDateBetween($query, $from = null, $to = null)
     {
         try {
             if ($from != null) {
@@ -76,12 +76,12 @@ class RequestLog extends Model
     /**
      * Scopes for requests logs with certain paths
      *
-     * @param Builder $query
+     * @param Builder|\Illuminate\Database\Query\Builder $query
      * @param string|null $pathRegex
      *
-     * @return Builder
+     * @return Builder|\Illuminate\Database\Query\Builder
      */
-    public function scopeWherePath(Builder $query, ?string $pathRegex)
+    public function scopeWherePath($query, ?string $pathRegex)
     {
         if (empty($pathRegex)) {
             return $query;
