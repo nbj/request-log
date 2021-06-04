@@ -3,13 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::namespace('Cego\RequestLog\Controllers')->prefix('vendor')
-    ->middleware([
-        \App\Http\Middleware\EncryptCookies::class,
-        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-        \Illuminate\Session\Middleware\StartSession::class,
-        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        \Illuminate\Routing\Middleware\SubstituteBindings::class,
-    ])->group(function () {
+    ->group(function () {
         Route::get('request-logs/toggle', 'RequestLogController@toggle')
             ->name('request-logs.toggle');
 
@@ -21,4 +15,10 @@ Route::namespace('Cego\RequestLog\Controllers')->prefix('vendor')
 
         Route::resource('request-logs', 'RequestLogController')
             ->only(['index', 'show', 'destroy']);
-    });
+    })->middleware([
+        \App\Http\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    ]);
