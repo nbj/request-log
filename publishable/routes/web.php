@@ -1,24 +1,25 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\VerifyCsrfToken;
 
-Route::namespace('Cego\RequestLog\Controllers')->prefix('vendor')
+Route::namespace('Cego\RequestLog\Controllers')
+    ->prefix('vendor')
+    ->middleware('web')
     ->group(function () {
         Route::get('request-logs/toggle', 'RequestLogController@toggle')
-            ->name('request-logs.toggle');
+            ->name('request-logs.toggle')
+            ->withoutMiddleware(VerifyCsrfToken::class);
 
         Route::delete('request-logs/delete', 'RequestLogController@delete')
-            ->name('request-logs.delete');
+            ->name('request-logs.delete')
+            ->withoutMiddleware(VerifyCsrfToken::class);
 
         Route::resource('request-logs/blacklisted-routes', 'BlacklistedRoutesController')
-            ->only(['index', 'create', 'store', 'destroy']);
+            ->only(['index', 'create', 'store', 'destroy'])
+            ->withoutMiddleware(VerifyCsrfToken::class);
 
         Route::resource('request-logs', 'RequestLogController')
-            ->only(['index', 'show', 'destroy']);
-    })->middleware([
-        \App\Http\Middleware\EncryptCookies::class,
-        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-        \Illuminate\Session\Middleware\StartSession::class,
-        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        \Illuminate\Routing\Middleware\SubstituteBindings::class,
-    ]);
+            ->only(['index', 'show', 'destroy'])
+            ->withoutMiddleware(VerifyCsrfToken::class);
+    });
