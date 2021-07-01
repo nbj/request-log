@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Cego\RequestLog\Models\RequestLog;
 use Illuminate\Support\Facades\Config;
-use Cego\RequestInsurance\Models\RequestInsurance;
 
 class AutomaticLogCleanup extends Command
 {
