@@ -40,7 +40,7 @@ class AutomaticLogCleanup extends Command
             return 0;
         }
 
-        $numberOfRetentionDays = Config::get('request-log.logRetentionNumberOfDays', 90);
+        $numberOfRetentionDays = Config::get('request-log.logRetentionNumberOfDays', 14);
         $this->info(sprintf('Deleting logs older than %d days', $numberOfRetentionDays));
 
         RequestLog::query()
