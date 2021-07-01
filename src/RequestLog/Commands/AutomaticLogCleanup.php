@@ -32,7 +32,7 @@ class AutomaticLogCleanup extends Command
     public function handle(): int
     {
         // Bail out if automatic clean up is not enabled
-        if ( ! Config::get('request-log.automaticLogCleanUpEnabled', false)) {
+        if ( ! Config::get('request-log.automaticLogCleanUpEnabled', true)) {
             return 0;
         }
 
