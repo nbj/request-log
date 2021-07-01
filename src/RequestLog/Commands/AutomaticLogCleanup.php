@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Cego\RequestLog\Models\RequestLog;
 use Illuminate\Support\Facades\Config;
-use Cego\RequestInsurance\Models\RequestInsurance;
 
 class AutomaticLogCleanup extends Command
 {
@@ -29,19 +28,14 @@ class AutomaticLogCleanup extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-        $isEnabled = Config::get('request-log.automaticLogCleanUpEnabled', false);
-
         // Bail out if automatic clean up is not enabled
-        if ( ! $isEnabled) {
-            $this->info('Automatic clean up of logs is not enabled in config');
-
+        if ( ! Config::get('request-log.automaticLogCleanUpEnabled', true)) {
             return 0;
         }
 
-        $numberOfRetentionDays = Config::get('request-log.logRetentionNumberOfDays', 90);
-        $this->info(sprintf('Deleting logs older than %d days', $numberOfRetentionDays));
+        $numberOfRetentionDays = Config::get('request-log.logRetentionNumberOfDays', 14);
 
         RequestLog::query()
             ->where('created_at', '<', Carbon::now()->subDays($numberOfRetentionDays))
