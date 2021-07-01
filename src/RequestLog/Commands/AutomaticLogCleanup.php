@@ -35,13 +35,10 @@ class AutomaticLogCleanup extends Command
 
         // Bail out if automatic clean up is not enabled
         if ( ! $isEnabled) {
-            $this->info('Automatic clean up of logs is not enabled in config');
-
             return 0;
         }
 
         $numberOfRetentionDays = Config::get('request-log.logRetentionNumberOfDays', 14);
-        $this->info(sprintf('Deleting logs older than %d days', $numberOfRetentionDays));
 
         RequestLog::query()
             ->where('created_at', '<', Carbon::now()->subDays($numberOfRetentionDays))
