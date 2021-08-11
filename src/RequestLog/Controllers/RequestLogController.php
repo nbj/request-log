@@ -191,6 +191,7 @@ SQL;
      * @param RequestLog $requestLog
      *
      * @return View|Factory
+     *
      * @throws Exception
      */
     public function destroy(RequestLog $requestLog)

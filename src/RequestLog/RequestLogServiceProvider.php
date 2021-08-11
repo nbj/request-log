@@ -9,10 +9,10 @@ use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
-use Cego\RequestLog\Middleware\LogRequest;
 use Cego\RequestLog\Components\StatusCode;
-use Illuminate\Console\Scheduling\Schedule;
+use Cego\RequestLog\Middleware\LogRequest;
 use Cego\RequestLog\Components\PrettyPrint;
+use Illuminate\Console\Scheduling\Schedule;
 use Cego\RequestLog\Commands\AutomaticLogCleanup;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
@@ -83,7 +83,7 @@ class RequestLogServiceProvider extends ServiceProvider
     protected function registerAndScheduleCommands(): void
     {
         // Only register and schedule commands if we are running in CLI mode
-        if (! $this->app->runningInConsole()) {
+        if ( ! $this->app->runningInConsole()) {
             return;
         }
 
