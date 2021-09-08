@@ -17,6 +17,7 @@ class IncreaseStringColumnLength extends Migration
             $table->string('query_string', 2000)->change();
             $table->string('url', 2000)->change();
         });
+
     }
 
     /**
