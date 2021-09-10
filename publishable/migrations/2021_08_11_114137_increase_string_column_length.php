@@ -28,7 +28,7 @@ class IncreaseStringColumnLength extends Migration
     public function down(): void
     {
         Schema::table('request_logs', static function (Blueprint $table) {
-            $table->string('query')->change();
+            $table->string('query_string')->change();
             $table->string('url')->change();
         });
     }
