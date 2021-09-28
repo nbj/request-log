@@ -67,7 +67,7 @@
                                 </tr>
                                 <tr>
                                     <td>Query:</td>
-                                    <td><x-request-log-pretty-print-json :json="$requestLog->query_string"/></td>
+                                    <td><x-request-log-pretty-print :content="$requestLog->query_string"/></td>
                                 </tr>
                                 <tr>
                                     <td>Date:</td>
@@ -97,11 +97,11 @@
                                 <tbody>
                                 <tr>
                                     <td>Header:</td>
-                                    <td><x-request-log-pretty-print-json :json="$requestLog->request_headers"/></td>
+                                    <td><x-request-log-pretty-print :content="$requestLog->request_headers"/></td>
                                 </tr>
                                 <tr>
                                     <td>Body:</td>
-                                    <td><x-request-log-pretty-print-json :json="$requestLog->request_body"/></td>
+                                    <td><x-request-log-pretty-print :content="$requestLog->request_body"/></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -123,15 +123,15 @@
                                 <tbody>
                                 <tr>
                                     <td>Header:</td>
-                                    <td><x-request-log-pretty-print-json :json="$requestLog->response_headers"/></td>
+                                    <td><x-request-log-pretty-print :content="$requestLog->response_headers"/></td>
                                 </tr>
                                 <tr>
                                     <td>Exception:</td>
-                                    <td><x-request-log-pretty-print-json :json="$requestLog->response_exception"/></td>
+                                    <td><x-request-log-pretty-print :content="$requestLog->response_exception"/></td>
                                 </tr>
                                 <tr>
                                     <td>Body:</td>
-                                    <td><x-request-log-pretty-print-json :json="$requestLog->response_body"/></td>
+                                    <td><x-request-log-pretty-print :content="$requestLog->response_body"/></td>
                                 </tr>
                                 </tbody>
                             </table>

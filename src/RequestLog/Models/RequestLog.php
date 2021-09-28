@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Cego\RequestLog\Models;
 
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -35,10 +35,11 @@ class RequestLog extends Model
             return $query;
         }
 
-        // We wrap the orWhere's in a closure to make they are added inside parentheses
+        // We wrap the orWhere's in a closure to make sure they are added inside parentheses
         return $query->where(function (Builder $query) use ($statusCodes) {
             foreach ($statusCodes as $code) {
-                $query->orWhere('status', 'like', sprintf('%s%%', $code));
+                // Is much faster than alternatives such as (LIKE '$code__') or (LIKE '$code%')
+                $query->orWhereBetween('status', [sprintf('%s00', $code), sprintf('%s99', $code)]);
             }
         });
     }
@@ -70,5 +71,27 @@ class RequestLog extends Model
         } finally {
             return $query;
         }
+    }
+
+    /**
+     * Scopes for requests logs with certain paths
+     *
+     * @param Builder $query
+     * @param string|null $pathRegex
+     *
+     * @return Builder
+     */
+    public function scopeWherePath(Builder $query, ?string $pathRegex)
+    {
+        if (empty($pathRegex)) {
+            return $query;
+        }
+
+        // The visual first forward-slash is only a front end thing, and not stored in DB
+        // So it can be confusing when searching for paths like "/abc/aaa" and then nothing
+        // showing up, because the first forward slash does not exist.
+        $pathRegex = ltrim($pathRegex, "/");
+
+        return $query->where("path", "LIKE", $pathRegex);
     }
 }

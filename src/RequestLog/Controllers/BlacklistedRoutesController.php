@@ -1,10 +1,10 @@
 <?php
 
-namespace Nbj\RequestLog\Controllers;
+namespace Cego\RequestLog\Controllers;
 
 use Illuminate\Http\Request;
-use App\RequestLogBlacklistedRoute;
 use App\Http\Controllers\Controller;
+use Cego\RequestLog\Models\RequestLogBlacklistedRoute;
 
 class BlacklistedRoutesController extends Controller
 {

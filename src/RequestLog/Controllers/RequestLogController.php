@@ -1,13 +1,13 @@
 <?php
 
-namespace Nbj\RequestLog\Controllers;
+namespace Cego\RequestLog\Controllers;
 
 use Exception;
-use App\RequestLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
+use Cego\RequestLog\Models\RequestLog;
 
 class RequestLogController extends Controller
 {
@@ -88,7 +88,9 @@ class RequestLogController extends Controller
      */
     public function delete()
     {
-        RequestLog::query()->delete();
+        // Truncate is much faster than ->delete
+        // since it does not need to log each individual row deletion
+        RequestLog::query()->truncate();
 
         return redirect()->route('request-logs.index');
     }
@@ -104,9 +106,11 @@ class RequestLogController extends Controller
      */
     protected function getFilteredLogQuery(Request $request)
     {
-        return RequestLog::latest()
+        return RequestLog::query()
             ->whereStatusGroup($this->getFilteredStatusGroups($request))
-            ->whereCreatedAtDateBetween($request->get("from"), $request->get("to"));
+            ->wherePath($request->get("path_regex"))
+            ->whereCreatedAtDateBetween($request->get("from"), $request->get("to"))
+            ->orderByDesc('id');
     }
 
     /**
@@ -154,30 +158,46 @@ from
 	(
 		select count(*) as one 
 		from request_logs
-		where status like '1__'
+		where status between 100 AND 199
 	) as a,
 	(
 		select count(*) as two 
 		from request_logs 
-		where status like '2__'
+		where status between 200 AND 299
 	) as b,
 	(
 		select count(*) as three 
 		from request_logs 
-		where status like '3__'
+		where status between 300 AND 399
 	) as c,
 	(
 		select count(*) as four 
 		from request_logs 
-		where status like '4__'
+		where status between 400 AND 499
 	) as d,
 	(
 		select count(*) as five 
 		from request_logs 
-		where status like '5__'
+		where status between 500 AND 599
 	) as e
 SQL;
 
         return collect(DB::select($query)[0]);
+    }
+
+    /**
+     * Frontend view for displaying a single full requestLog
+     *
+     * @param RequestLog $requestLog
+     *
+     * @return View|Factory
+     *
+     * @throws Exception
+     */
+    public function destroy(RequestLog $requestLog)
+    {
+        $requestLog->delete();
+
+        return redirect()->back();
     }
 }

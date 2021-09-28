@@ -13,7 +13,6 @@
 
                     <div>
                         <form method="post" action="{{ route('blacklisted-routes.store') }}" class="form-inline mb-5">
-                            {{ csrf_field() }}
                             <div class="">
                                 <div class="form-group">
                                     <label class="form-check-label mr-3">
