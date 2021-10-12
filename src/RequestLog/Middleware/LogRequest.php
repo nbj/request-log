@@ -3,6 +3,7 @@
 namespace Cego\RequestLog\Middleware;
 
 use Closure;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Cego\RequestLog\Models\RequestLog;
 use Illuminate\Support\Facades\Config;
@@ -96,8 +97,10 @@ class LogRequest
         // We get the list of blacklisted routes from the cache if present
         // or get it from the database and cache it forever
         $blacklistedRoutes = Cache::rememberForever('request-log.blacklistedUrls', function () {
-            return RequestLogBlacklistedRoute::all()->map(fn (RequestLogBlacklistedRoute $route) => $route->path)->toArray();
+            return RequestLogBlacklistedRoute::all();
         });
+
+        $blacklistedRoutes = $blacklistedRoutes->map(fn (RequestLogBlacklistedRoute $route) => $route->path)->toArray();
 
         $blacklistedRoutes = array_merge($configBlackListedRoutes, $blacklistedRoutes);
 
