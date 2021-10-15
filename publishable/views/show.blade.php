@@ -55,11 +55,11 @@
                                 <tbody>
                                 <tr>
                                     <td>Request:</td>
-                                    <td>{{ $requestLog->method }} <x-request-log-status-code code="{{ $requestLog->status }}"/> /{{ $requestLog->path }}</td>
+                                    <td>{{ $requestLog->method }} <x-request-log-status-code code="{{ $requestLog->status }}"/> /{{ urldecode($requestLog->path) }}</td>
                                 </tr>
                                 <tr>
                                     <td>Root:</td>
-                                    <td>{{ $requestLog->root }}</td>
+                                    <td>{{ urldecode($requestLog->root) }}</td>
                                 </tr>
                                 <tr>
                                     <td>Time:</td>

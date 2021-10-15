@@ -98,7 +98,7 @@
                                 <td>{{ $log->id }}</td>
                                 <td>{{ $log->method }}</td>
                                 <td><x-request-log-status-code code="{{ $log->status }}"/></td>
-                                <td>/{{ $log->path }}</td>
+                                <td>/{{ urldecode($log->path) }}</td>
                                 <td>{{ $log->query_string }}</td>
                                 <td>{{ number_format($log->execution_time, 4) }}</td>
                                 <td>{{ $log->created_at }}</td>
