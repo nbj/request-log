@@ -25,4 +25,15 @@ return [
     */
 
     'logRetentionNumberOfDays' => 14,
+
+    /*
+    | A list of default routes that are always black listed
+    */
+
+    'blackListedRoutes' => [
+        'livewire/*',       // Example: livewire/livewire.js
+        'vendor/*',         // Example: vendor/request-logs
+        'vendor/*/*',       // Example: vendor/request-logs/1
+        'vendor/*/*/*',     // Example: Vendor/request-logs/1/delete
+    ],
 ];
