@@ -23,7 +23,7 @@ class SecurityUtility
             return json_encode($headers);
         }
 
-        $sensitiveHeaders = (array) json_decode($request->header('X-SENSITIVE-REQUEST-HEADERS-JSON'));
+        $sensitiveHeaders = json_decode($request->header('X-SENSITIVE-REQUEST-HEADERS-JSON'));
 
         $sensitiveHeaders = array_map(fn ($header) => strtolower($header), $sensitiveHeaders);
 
@@ -50,12 +50,12 @@ class SecurityUtility
             return $request->getContent();
         }
 
-        $sensitiveBodyFields = (array) json_decode($request->header('X-SENSITIVE-REQUEST-BODY-JSON'));
+        $sensitiveBodyFields = json_decode($request->header('X-SENSITIVE-REQUEST-BODY-JSON'));
 
         $data = json_decode($request->getContent(), true);
 
         foreach ($sensitiveBodyFields as $field) {
-            if ($dataValue = Arr::get($data, $field)) {
+            if (Arr::get($data, $field)) {
                 Arr::set($data, $field, '[ MASKED ]');
             }
         }

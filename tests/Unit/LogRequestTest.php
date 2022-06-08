@@ -44,7 +44,7 @@ class LogRequestTest extends TestCase
     {
         // Arrange
         $headers = [
-            'X-SENSITIVE-REQUEST-HEADERS-JSON' => json_encode('X-ENCRYPT-THIS-HEADER'),
+            'X-SENSITIVE-REQUEST-HEADERS-JSON' => json_encode(['X-ENCRYPT-THIS-HEADER']),
             'X-ENCRYPT-THIS-HEADER'            => 'This is a secret header',
             'X-DONT-ENCRYPT-THIS-HEADER'       => 'This is a non-secret header',
         ];
