@@ -63,6 +63,30 @@ class LogRequestTest extends TestCase
     }
 
     /** @test */
+    public function it_masks_duplicate_request_headers()
+    {
+        // Arrange
+        $headers = [
+            'X-SENSITIVE-REQUEST-HEADERS-JSON' => json_encode(['X-ENCRYPT-THIS-HEADER']),
+            'X-ENCRYPT-THIS-HEADER'            => ['This is a secret header', 'And we define it twice'],
+            'X-DONT-ENCRYPT-THIS-HEADER'       => 'This is a non-secret header',
+        ];
+
+        // Act
+        $this->post('/test', [], $headers);
+
+        // Assert
+        $this->assertDatabaseCount('request_logs', 1);
+
+        $requestLog = RequestLog::first();
+        $loggedHeaders = json_decode($requestLog->request_headers, true);
+
+        $this->assertEquals('[ MASKED ]', $loggedHeaders['x-encrypt-this-header'][0]);
+        $this->assertEquals('[ MASKED ]', $loggedHeaders['x-encrypt-this-header'][1]);
+        $this->assertEquals('This is a non-secret header', $loggedHeaders['x-dont-encrypt-this-header'][0]);
+    }
+
+    /** @test */
     public function it_masks_request_body()
     {
         // Arrange

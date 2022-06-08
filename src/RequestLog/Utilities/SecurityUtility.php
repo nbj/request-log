@@ -28,8 +28,8 @@ class SecurityUtility
         $sensitiveHeaders = array_map(fn ($header) => strtolower($header), $sensitiveHeaders);
 
         foreach ($sensitiveHeaders as $sensitiveHeader) {
-            if (isset($headers[$sensitiveHeader][0])) {
-                $headers[$sensitiveHeader][0] = '[ MASKED ]';
+            if (isset($headers[$sensitiveHeader])) {
+                $headers[$sensitiveHeader] = array_map(fn () => '[ MASKED ]', $headers[$sensitiveHeader]);
             }
         }
 
