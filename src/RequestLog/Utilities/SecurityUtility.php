@@ -15,7 +15,7 @@ class SecurityUtility
      *
      * @return string
      */
-    public static function getHeadersWithEncryptionApplied(Request $request): string
+    public static function getHeadersWithMaskingApplied(Request $request): string
     {
         $headers = $request->headers->all();
 
@@ -43,7 +43,7 @@ class SecurityUtility
      *
      * @return string|null
      */
-    public static function getBodyWithEncryptionApplied(Request $request): ?string
+    public static function getBodyWithMaskingApplied(Request $request): ?string
     {
         if ( ! $request->hasHeader('X-SENSITIVE-REQUEST-BODY-JSON') || ! $request->isJson()) {
             // If the request is not JSON, getContent(), which is what we log as request body, is always empty
