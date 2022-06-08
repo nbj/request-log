@@ -55,7 +55,7 @@ class SecurityUtility
         $data = json_decode($request->getContent(), true);
 
         foreach ($sensitiveBodyFields as $field) {
-            if (Arr::get($data, $field)) {
+            if (Arr::has($data, $field)) {
                 Arr::set($data, $field, '[ MASKED ]');
             }
         }
