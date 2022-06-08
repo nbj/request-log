@@ -3,7 +3,6 @@
 namespace Cego\RequestLog\Models;
 
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
@@ -94,57 +93,5 @@ class RequestLog extends Model
         $pathRegex = ltrim($pathRegex, "/");
 
         return $query->where("path", "LIKE", $pathRegex);
-    }
-
-    /**
-     * Returns the request headers wits masking applied according to 'X-SENSITIVE-REQUEST-HEADERS-JSON'
-     *
-     * @return string
-     */
-    public function getRequestHeadersWithMaskingApplied(): string
-    {
-        $requestHeaders = json_decode($this->request_headers, true);
-
-        if ( ! isset($requestHeaders['x-sensitive-request-headers-json'])) {
-            return $this->request_headers;
-        }
-
-        $sensitiveHeaders = (array) json_decode($requestHeaders['x-sensitive-request-headers-json'][0]);
-
-        foreach ($sensitiveHeaders as $sensitiveHeader) {
-            $sensitiveHeader = strtolower($sensitiveHeader);
-
-            if (isset($requestHeaders[$sensitiveHeader][0])) {
-                $requestHeaders[$sensitiveHeader][0] = '[ MASKED ]';
-            }
-        }
-
-        return json_encode($requestHeaders);
-    }
-
-    /**
-     * Returns the request body wits masking applied according to 'X-SENSITIVE-REQUEST-BODY-JSON'
-     *
-     * @return string
-     */
-    public function getRequestBodyWithMaskingApplied(): string
-    {
-        $requestHeaders = json_decode($this->request_headers, true);
-
-        if ( ! isset($requestHeaders['x-sensitive-request-body-json'])) {
-            return $this->request_body;
-        }
-
-        $sensitiveBodyFields = (array) json_decode($requestHeaders['x-sensitive-request-body-json'][0]);
-
-        $requestBody = json_decode($this->request_body, true);
-
-        foreach ($sensitiveBodyFields as $field) {
-            if (Arr::get($requestBody, $field)) {
-                Arr::set($requestBody, $field, '[ MASKED ]');
-            }
-        }
-
-        return json_encode($requestBody);
     }
 }

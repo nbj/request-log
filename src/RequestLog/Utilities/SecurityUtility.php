@@ -5,7 +5,6 @@ namespace Cego\RequestLog\Utilities;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Crypt;
 
 class SecurityUtility
 {
@@ -30,7 +29,7 @@ class SecurityUtility
 
         foreach ($sensitiveHeaders as $sensitiveHeader) {
             if (isset($headers[$sensitiveHeader][0])) {
-                $headers[$sensitiveHeader][0] = Crypt::encrypt($headers[$sensitiveHeader][0]);
+                $headers[$sensitiveHeader][0] = '[ MASKED ]';
             }
         }
 
@@ -57,7 +56,7 @@ class SecurityUtility
 
         foreach ($sensitiveBodyFields as $field) {
             if ($dataValue = Arr::get($data, $field)) {
-                Arr::set($data, $field, Crypt::encrypt($dataValue));
+                Arr::set($data, $field, '[ MASKED ]');
             }
         }
 
