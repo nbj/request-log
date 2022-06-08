@@ -97,11 +97,11 @@
                                 <tbody>
                                 <tr>
                                     <td>Header:</td>
-                                    <td><x-request-log-pretty-print :content="$requestLog->request_headers"/></td>
+                                    <td><x-request-log-pretty-print :content="$requestLog->getRequestHeadersWithMaskingApplied()"/></td>
                                 </tr>
                                 <tr>
                                     <td>Body:</td>
-                                    <td><x-request-log-pretty-print :content="$requestLog->request_body"/></td>
+                                    <td><x-request-log-pretty-print :content="$requestLog->getRequestBodyWithMaskingApplied()"/></td>
                                 </tr>
                                 </tbody>
                             </table>

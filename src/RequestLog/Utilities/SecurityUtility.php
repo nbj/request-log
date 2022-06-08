@@ -18,13 +18,15 @@ class SecurityUtility
      */
     public static function getHeadersWithEncryptionApplied(Request $request): string
     {
-        $sensitiveHeaders = $request->hasHeader('X-SENSITIVE-REQUEST-HEADERS-JSON')
-            ? (array) json_decode($request->header('X-SENSITIVE-REQUEST-HEADERS-JSON'))
-            : [];
+        $headers = $request->headers->all();
+
+        if ( ! $request->hasHeader('X-SENSITIVE-REQUEST-HEADERS-JSON')) {
+            return json_encode($headers);
+        }
+
+        $sensitiveHeaders = (array) json_decode($request->header('X-SENSITIVE-REQUEST-HEADERS-JSON'));
 
         $sensitiveHeaders = array_map(fn ($header) => strtolower($header), $sensitiveHeaders);
-
-        $headers = $request->headers->all();
 
         foreach ($sensitiveHeaders as $sensitiveHeader) {
             if (isset($headers[$sensitiveHeader][0])) {
@@ -44,18 +46,12 @@ class SecurityUtility
      */
     public static function getBodyWithEncryptionApplied(Request $request): ?string
     {
-        $sensitiveBodyFields = $request->hasHeader('X-SENSITIVE-REQUEST-BODY-JSON')
-            ? (array) json_decode($request->header('X-SENSITIVE-REQUEST-BODY-JSON'))
-            : [];
-
-        if (empty($sensitiveBodyFields)) {
-            return $request->getContent();
-        }
-
-        if ( ! $request->isJson()) {
+        if ( ! $request->hasHeader('X-SENSITIVE-REQUEST-BODY-JSON') || ! $request->isJson()) {
             // If the request is not JSON, getContent(), which is what we log as request body, is always empty
             return $request->getContent();
         }
+
+        $sensitiveBodyFields = (array) json_decode($request->header('X-SENSITIVE-REQUEST-BODY-JSON'));
 
         $data = json_decode($request->getContent(), true);
 
