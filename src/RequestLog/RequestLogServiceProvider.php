@@ -2,12 +2,8 @@
 
 namespace Cego\RequestLog;
 
-use Exception;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Contracts\Http\Kernel;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Cego\RequestLog\Components\StatusCode;
 use Cego\RequestLog\Middleware\LogRequest;
@@ -105,40 +101,9 @@ class RequestLogServiceProvider extends ServiceProvider
      */
     protected function pushGlobalMiddleware(): void
     {
-        // Only apply the middleware if the package is enabled
-        if ($this->isRequestLogDisabled()) {
-            return;
-        }
-
         // Push Middleware to global middleware stack
         $kernel = $this->app->make(Kernel::class);
         $kernel->pushMiddleware(LogRequest::class);
-    }
-
-    /**
-     * Checks if Request Log is disabled or not
-     *
-     * @return bool
-     */
-    protected function isRequestLogDisabled(): bool
-    {
-        // When this service provider is loaded in CI pipeline and using a
-        // cache driver other than file, the service might not be available
-        // To mitigate this we simply ignore the exception that is thrown
-        $isEnabled = false;
-
-        try {
-            $isEnabled = Cache::get('request-log.enabled');
-
-            if ($isEnabled === null) {
-                $isEnabled = Config::get('request-log.enabled');
-                Cache::set('request-log.enabled', $isEnabled);
-            }
-        } catch (Exception $exception) {
-            Log::notice(sprintf('Cache driver is not available - Message: %s', $exception->getMessage()));
-        }
-
-        return ! $isEnabled;
     }
 
     /**
