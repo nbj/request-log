@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('request_log_option', function (Blueprint $table) {
+        Schema::create('request_log_options', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->string('name');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('request_log_option');
+        Schema::dropIfExists('request_log_options');
     }
 };
