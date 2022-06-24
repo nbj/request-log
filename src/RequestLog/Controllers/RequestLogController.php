@@ -47,7 +47,7 @@ class RequestLogController extends Controller
 
         return view("request-logs::index")->with([
             "requestLogs"  => $requestLogs,
-            'isEnabled'    => $this->requestLogOptionsService->isRequestLogEnabled(),
+            'isEnabled'    => $this->requestLogOptionsService->isRequestLogEnabled(false),
             'numberOf1XXs' => $segmentedNumberOfStatuses->get('one'),
             'numberOf2XXs' => $segmentedNumberOfStatuses->get('two'),
             'numberOf3XXs' => $segmentedNumberOfStatuses->get('three'),
@@ -65,7 +65,7 @@ class RequestLogController extends Controller
      */
     public function show(RequestLog $requestLog)
     {
-        $isEnabled = $this->requestLogOptionsService->isRequestLogEnabled();
+        $isEnabled = $this->requestLogOptionsService->isRequestLogEnabled(false);
 
         if ($isEnabled) {
             return view("request-logs::show")->with(["requestLog" => $requestLog]);

@@ -2,7 +2,6 @@
 
 namespace Cego\RequestLog\Models;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -18,5 +17,4 @@ class RequestLogBlacklistedRoute extends Model
      * @var bool
      */
     protected static $unguarded = true;
-
 }

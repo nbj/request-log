@@ -58,7 +58,7 @@ class LogRequest
      */
     public function terminate($request, $response)
     {
-        if(!$this->requestLogOptionsService->isRequestLogEnabledCached()) {
+        if ( ! $this->requestLogOptionsService->isRequestLogEnabled()) {
             return;
         }
 
@@ -124,5 +124,4 @@ class LogRequest
 
         return false;
     }
-
 }
