@@ -16,7 +16,7 @@ class RequestLogOptionsService {
     public function isRequestLogEnabledCached(): bool
     {
         return Cache::remember('request-log.enabled', 10, function () {
-            $this->isRequestLogEnabled();
+            return $this->isRequestLogEnabled();
         });
     }
 
