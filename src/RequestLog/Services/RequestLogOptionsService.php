@@ -38,12 +38,13 @@ class RequestLogOptionsService
      */
     protected function createDefaultEnabledKey(): bool
     {
-        // insert default option if it doesn't exist
-        $option = new RequestLogOption();
-        $option->name = self::REQUEST_LOG_ENABLED_KEY;
         $enabled = config('request-log.enabled');
-        $option->value = $enabled ? 'true' : 'false';
-        $option->save();
+        RequestLogOption::create(
+            [
+                'name'  => self::REQUEST_LOG_ENABLED_KEY,
+                'value' => $enabled ? 'true' : 'false'
+            ]
+        );
 
         return $enabled;
     }
