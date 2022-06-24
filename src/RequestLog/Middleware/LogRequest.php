@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Cego\RequestLog\Models\RequestLog;
 use Illuminate\Support\Facades\Config;
 use Cego\RequestLog\Models\RequestLogBlacklistedRoute;
+use Cego\RequestLog\Services\RequestLogOptionsService;
 
 class LogRequest
 {
@@ -48,9 +49,9 @@ class LogRequest
      *
      * @return void
      */
-    public function terminate($request, $response)
+    public function terminate($request, $response, RequestLogOptionsService $requestLogOptionsService)
     {
-        if($this->isRequestLogDisabled()) {
+        if(!$requestLogOptionsService->isRequestLogEnabled()) {
             return;
         }
 
