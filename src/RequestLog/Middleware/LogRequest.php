@@ -25,6 +25,13 @@ class LogRequest
      */
     protected $endTime;
 
+    protected RequestLogOptionsService $requestLogOptionsService;
+
+    public function __construct(RequestLogOptionsService $requestLogOptionsService)
+    {
+        $this->requestLogOptionsService = $requestLogOptionsService;
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -49,9 +56,9 @@ class LogRequest
      *
      * @return void
      */
-    public function terminate($request, $response, RequestLogOptionsService $requestLogOptionsService)
+    public function terminate($request, $response)
     {
-        if(!$requestLogOptionsService->isRequestLogEnabled()) {
+        if(!$this->requestLogOptionsService->isRequestLogEnabled()) {
             return;
         }
 

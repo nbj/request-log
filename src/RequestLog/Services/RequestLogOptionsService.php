@@ -36,7 +36,7 @@ class RequestLogOptionsService {
      * Toggle Request Log Enabled/Disabled
      */
     public function toggleRequestLogEnabled(){
-        $requestLogOption = RequestLogOption::where('name', $this->REQUEST_LOG_ENABLED_KEY)->firstOrFail();
+        $requestLogOption = RequestLogOption::where('name', self::REQUEST_LOG_ENABLED_KEY)->firstOrFail();
         $requestLogOption->value = $requestLogOption->value === 'true' ? 'false' : 'true';
         $requestLogOption->save();
     }
