@@ -20,7 +20,6 @@ class RequestLogOptionsService {
         });
     }
 
-
     /**
      * Checks if Request Log is disabled or not
      *
@@ -42,8 +41,6 @@ class RequestLogOptionsService {
 
         return $enabled;
     }
-
-
 
     /** 
      * Toggle Request Log Enabled/Disabled
