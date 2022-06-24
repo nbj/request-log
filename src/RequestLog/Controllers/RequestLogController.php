@@ -11,7 +11,7 @@ use Cego\RequestLog\Services\RequestLogOptionsService;
 
 class RequestLogController extends Controller
 {
-    protected $requestLogOptionsService;
+    protected RequestLogOptionsService $requestLogOptionsService;
 
     public function __construct(RequestLogOptionsService $requestLogOptionsService)
     {
