@@ -3,12 +3,11 @@
 namespace Cego\RequestLog\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Cego\RequestLog\Models\RequestLog;
 use Illuminate\Support\Facades\Config;
-use Cego\RequestLog\Utilities\SecurityUtility;
 use Cego\RequestLog\Models\RequestLogBlacklistedRoute;
+use Cego\RequestLog\Services\RequestLogOptionsService;
 
 class LogRequest
 {
@@ -25,6 +24,13 @@ class LogRequest
      * @var string|float $endTime
      */
     protected $endTime;
+
+    protected RequestLogOptionsService $requestLogOptionsService;
+
+    public function __construct(RequestLogOptionsService $requestLogOptionsService)
+    {
+        $this->requestLogOptionsService = $requestLogOptionsService;
+    }
 
     /**
      * Handle an incoming request.
@@ -45,13 +51,17 @@ class LogRequest
     /**
      * Writes the RequestLog to the database once the request has terminated
      *
-     * @param \Illuminate\Http\Request $request
+     * @param mixed $request
      * @param mixed $response
      *
      * @return void
      */
     public function terminate($request, $response)
     {
+        if ( ! $this->requestLogOptionsService->isRequestLogEnabled()) {
+            return;
+        }
+
         $this->endTime = microtime(true);
 
         $executionTime = $this->endTime - $this->startTime;
@@ -75,8 +85,8 @@ class LogRequest
             'root'               => $request->root(),
             'path'               => $request->path(),
             'query_string'       => json_encode($request->query()),
-            'request_headers'    => SecurityUtility::getHeadersWithMaskingApplied($request),
-            'request_body'       => SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
+            'request_headers'    => json_encode($request->headers->all()),
+            'request_body'       => $request->getContent() ?: '{}',
             'response_headers'   => json_encode($response->headers->all()),
             'response_body'      => $response->getContent() ?: '{}',
             'response_exception' => json_encode($response->exception),
@@ -97,7 +107,7 @@ class LogRequest
 
         // We get the list of blacklisted routes from the cache if present
         // or get it from the database and cache it forever
-        $blacklistedRoutes = Cache::rememberForever('request-log.blacklistedUrls', function () {
+        $blacklistedRoutes = Cache::remember('request-log.blacklistedUrls', 10, function () {
             return RequestLogBlacklistedRoute::all();
         });
 

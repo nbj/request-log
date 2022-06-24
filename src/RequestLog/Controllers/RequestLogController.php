@@ -6,11 +6,18 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Cache;
 use Cego\RequestLog\Models\RequestLog;
+use Cego\RequestLog\Services\RequestLogOptionsService;
 
 class RequestLogController extends Controller
 {
+    protected RequestLogOptionsService $requestLogOptionsService;
+
+    public function __construct(RequestLogOptionsService $requestLogOptionsService)
+    {
+        $this->requestLogOptionsService = $requestLogOptionsService;
+    }
+
     /**
      * Frontend view for displaying and index of RequestLogs
      *
@@ -38,11 +45,9 @@ class RequestLogController extends Controller
 
         $segmentedNumberOfStatuses = $this->getSegmentedNumberOfStatuses();
 
-        $isEnabled = Cache::get('request-log.enabled');
-
         return view("request-logs::index")->with([
             "requestLogs"  => $requestLogs,
-            'isEnabled'    => $isEnabled,
+            'isEnabled'    => $this->requestLogOptionsService->isRequestLogEnabled(false),
             'numberOf1XXs' => $segmentedNumberOfStatuses->get('one'),
             'numberOf2XXs' => $segmentedNumberOfStatuses->get('two'),
             'numberOf3XXs' => $segmentedNumberOfStatuses->get('three'),
@@ -60,7 +65,7 @@ class RequestLogController extends Controller
      */
     public function show(RequestLog $requestLog)
     {
-        $isEnabled = Cache::get('request-log.enabled');
+        $isEnabled = $this->requestLogOptionsService->isRequestLogEnabled(false);
 
         if ($isEnabled) {
             return view("request-logs::show")->with(["requestLog" => $requestLog]);
@@ -76,7 +81,7 @@ class RequestLogController extends Controller
      */
     public function toggle()
     {
-        Cache::set('request-log.enabled', Cache::get('request-log.enabled') == false);
+        $this->requestLogOptionsService->toggleRequestLogEnabled();
 
         return redirect()->route('request-logs.index');
     }

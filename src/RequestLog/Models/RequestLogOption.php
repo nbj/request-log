@@ -3,14 +3,12 @@
 namespace Cego\RequestLog\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-/**
- * Class RequestLogBlacklistedRoute
- *
- * @property string $path
- */
-class RequestLogBlacklistedRoute extends Model
+class RequestLogOption extends Model
 {
+    use HasFactory;
+
     /**
      * Indicates if all mass assignment is enabled.
      *
