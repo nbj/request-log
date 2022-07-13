@@ -3,6 +3,8 @@
 namespace Cego\RequestLog\Middleware;
 
 use Closure;
+use Throwable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Cego\RequestLog\Models\RequestLog;
 use Illuminate\Support\Facades\Config;
@@ -17,13 +19,6 @@ class LogRequest
      * @var string|float $startTime
      */
     protected $startTime;
-
-    /**
-     * Holds the end time of the request
-     *
-     * @var string|float $endTime
-     */
-    protected $endTime;
 
     protected RequestLogOptionsService $requestLogOptionsService;
 
@@ -56,42 +51,44 @@ class LogRequest
      *
      * @return void
      */
-    public function terminate($request, $response)
+    public function terminate($request, $response): void
     {
-        if ( ! $this->requestLogOptionsService->isRequestLogEnabled()) {
-            return;
+        try {
+            if ( ! $this->requestLogOptionsService->isRequestLogEnabled()) {
+                return;
+            }
+
+            $executionTime = microtime(true) - $this->startTime;
+
+            if ($executionTime < 0) {
+                $executionTime = 0;
+            }
+
+            // We need to check if the path of the current request is blacklisted
+            // if it is we out-out here and to not write a RequestLog entry
+            if ($this->routeIsBlacklisted($request)) {
+                return;
+            }
+
+            RequestLog::create([
+                'client_ip'          => $request->ip(),
+                'user_agent'         => $request->userAgent(),
+                'method'             => $request->method(),
+                'status'             => $response->status(),
+                'url'                => $request->url(),
+                'root'               => $request->root(),
+                'path'               => $request->path(),
+                'query_string'       => json_encode($request->query()),
+                'request_headers'    => json_encode($request->headers->all()),
+                'request_body'       => $request->getContent() ?: '{}',
+                'response_headers'   => json_encode($response->headers->all()),
+                'response_body'      => $response->getContent() ?: '{}',
+                'response_exception' => json_encode($response->exception),
+                'execution_time'     => $executionTime,
+            ]);
+        } catch (Throwable $throwable) {
+            Log::error($throwable);
         }
-
-        $this->endTime = microtime(true);
-
-        $executionTime = $this->endTime - $this->startTime;
-
-        if ($executionTime < 0) {
-            $executionTime = 0;
-        }
-
-        // We need to check if the path of the current request is blacklisted
-        // if it is we out-out here and to not write a RequestLog entry
-        if ($this->routeIsBlacklisted($request)) {
-            return;
-        }
-
-        RequestLog::create([
-            'client_ip'          => $request->ip(),
-            'user_agent'         => $request->userAgent(),
-            'method'             => $request->method(),
-            'status'             => $response->status(),
-            'url'                => $request->url(),
-            'root'               => $request->root(),
-            'path'               => $request->path(),
-            'query_string'       => json_encode($request->query()),
-            'request_headers'    => json_encode($request->headers->all()),
-            'request_body'       => $request->getContent() ?: '{}',
-            'response_headers'   => json_encode($response->headers->all()),
-            'response_body'      => $response->getContent() ?: '{}',
-            'response_exception' => json_encode($response->exception),
-            'execution_time'     => $executionTime,
-        ]);
     }
 
     /**
