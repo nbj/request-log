@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use Cego\RequestLog\Models\RequestLog;
+use Illuminate\Support\Facades\Config;
 use Cego\RequestLog\Middleware\LogRequest;
 
 class LogRequestTest extends TestCase
@@ -13,6 +14,7 @@ class LogRequestTest extends TestCase
         parent::setUp();
         $kernel = app('Illuminate\Contracts\Http\Kernel');
         $kernel->pushMiddleware(LogRequest::class);
+        Config::set('request-log.enabled', true);
     }
 
     /** @test */
@@ -135,5 +137,24 @@ class LogRequestTest extends TestCase
             ],
             'secret_array' => '[ MASKED ]'
         ], $loggedBody);
+    }
+
+    /** @test */
+    public function it_tests()
+    {
+        // Arrange
+
+        // Act
+        $this->post('/test?token=very-secret&cake=not-secret', [], ['Authorization' => 'very secret', 'something-else' => 'Not Secret']);
+
+        // Assert
+        $this->assertDatabaseCount('request_logs', 1);
+        /** @var RequestLog $requestLog */
+        $requestLog = RequestLog::query()->firstOrFail();
+        $loggedHeaders = json_decode($requestLog->request_headers, true);
+
+        $this->assertEquals('{"token":"[ MASKED ]","cake":"not-secret"}', $requestLog->query_string);
+        $this->assertEquals('[ MASKED ]', $loggedHeaders['authorization'][0]);
+        $this->assertEquals('Not Secret', $loggedHeaders['something-else'][0]);
     }
 }
