@@ -27,6 +27,25 @@ return [
     'logRetentionNumberOfDays' => 14,
 
     /*
+    | Set of headers and query parameters to redact from the log
+    */
+
+    'redact' => [
+        'query' => [
+            'token',
+            'authToken',
+            'auth',
+            'authorization',
+        ],
+
+        'headers' => [
+            'Authorization',
+            'php-auth-pw',
+            'php-auth-user',
+        ]
+    ],
+
+    /*
     | A list of default routes that are always black listed
     */
 

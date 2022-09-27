@@ -4,10 +4,12 @@ namespace Cego\RequestLog\Middleware;
 
 use Closure;
 use Throwable;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Cego\RequestLog\Models\RequestLog;
 use Illuminate\Support\Facades\Config;
+use Cego\RequestLog\Utilities\SecurityUtility;
 use Cego\RequestLog\Models\RequestLogBlacklistedRoute;
 use Cego\RequestLog\Services\RequestLogOptionsService;
 
@@ -78,9 +80,9 @@ class LogRequest
                 'url'                => $request->url(),
                 'root'               => $request->root(),
                 'path'               => $request->path(),
-                'query_string'       => json_encode($request->query()),
-                'request_headers'    => json_encode($request->headers->all()),
-                'request_body'       => $request->getContent() ?: '{}',
+                'query_string'       => SecurityUtility::getQueryWithMaskingApplied($request),
+                'request_headers'    => SecurityUtility::getHeadersWithMaskingApplied($request),
+                'request_body'       => SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
                 'response_headers'   => json_encode($response->headers->all()),
                 'response_body'      => $response->getContent() ?: '{}',
                 'response_exception' => json_encode($response->exception),
