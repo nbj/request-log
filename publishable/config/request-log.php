@@ -33,6 +33,9 @@ return [
     'redact' => [
         'query' => [
             'token',
+            'authToken',
+            'auth',
+            'authorization',
         ],
 
         'headers' => [
