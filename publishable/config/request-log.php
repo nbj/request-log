@@ -36,7 +36,9 @@ return [
         ],
 
         'headers' => [
-            'Authorization'
+            'Authorization',
+            'php-auth-pw',
+            'php-auth-user',
         ]
     ],
 
