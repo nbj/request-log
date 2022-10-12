@@ -25,7 +25,7 @@ class LogRequest
     /**
      * Holds the received request
      *
-     * @var RequestLog $receivedRequest
+     * @var $receivedRequest
      */
     protected $receivedRequest;
 
@@ -51,26 +51,28 @@ class LogRequest
         try {
             // We need to check if the path of the current request is blacklisted
             // if it is we out-out here and to not write a RequestLog entry
-            if ($this->requestLogOptionsService->isRequestLogEnabled() && ! $this->routeIsBlacklisted()) {
+            if ($this->requestLogOptionsService->isRequestLogEnabled() && ! $this->routeIsBlacklisted($request)) {
 
                 // Save request to database immediately so that we can see that it was received even if it is timed out
                 $this->receivedRequest = RequestLog::create([
                     'client_ip' => $request->ip(),
                     'user_agent' => $request->userAgent(),
                     'method' => $request->method(),
+                    'status' => 0,
                     'url' => $request->url(),
                     'root' => $request->root(),
                     'path' => $request->path(),
                     'query_string' => SecurityUtility::getQueryWithMaskingApplied($request),
                     'request_headers' => SecurityUtility::getHeadersWithMaskingApplied($request),
                     'request_body' => SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
-                    'response_headers' => [],
+                    'response_headers' => '[]',
                     'response_body' => '{}',
-                    'response_exception' => [],
+                    'response_exception' => '[]',
                     'execution_time' => 0,
                 ]);
             }
         } catch (Throwable $throwable) {
+            echo($throwable->getMessage());
             Log::error($throwable);
         }
 
@@ -91,7 +93,7 @@ class LogRequest
         try {
 
             // If the request is blacklisted or request log is not enabled, then receivedRequest was never set.
-            if (is_null($this->receivedRequest)) {
+            if ( ! isset($this->receivedRequest)) {
                 return;
             }
 
@@ -101,8 +103,9 @@ class LogRequest
                 $executionTime = 0;
             }
 
-            // update the receivedRequest with response data, then save to database again.
+            // Update the receivedRequest with response data, then save changes to the database.
             $this->receivedRequest->update([
+                'status' => $response->getStatus(),
                 'response_headers'   => json_encode($response->headers->all()),
                 'response_body'      => $response->getContent() ?: '{}',
                 'response_exception' => json_encode($response->exception),
