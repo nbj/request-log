@@ -22,6 +22,13 @@ class LogRequest
      */
     protected $startTime;
 
+    /**
+     * Holds the received request
+     *
+     * @var RequestLog $receivedRequest
+     */
+    protected $receivedRequest;
+
     protected RequestLogOptionsService $requestLogOptionsService;
 
     public function __construct(RequestLogOptionsService $requestLogOptionsService)
@@ -41,6 +48,32 @@ class LogRequest
     {
         $this->startTime = microtime(true);
 
+        try {
+            // We need to check if the path of the current request is blacklisted
+            // if it is we out-out here and to not write a RequestLog entry
+            if ($this->requestLogOptionsService->isRequestLogEnabled() && ! $this->routeIsBlacklisted()) {
+
+                // Save request to database immediately so that we can see that it was received even if it is timed out
+                $this->receivedRequest = RequestLog::create([
+                    'client_ip' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'method' => $request->method(),
+                    'url' => $request->url(),
+                    'root' => $request->root(),
+                    'path' => $request->path(),
+                    'query_string' => SecurityUtility::getQueryWithMaskingApplied($request),
+                    'request_headers' => SecurityUtility::getHeadersWithMaskingApplied($request),
+                    'request_body' => SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
+                    'response_headers' => [],
+                    'response_body' => '{}',
+                    'response_exception' => [],
+                    'execution_time' => 0,
+                ]);
+            }
+        } catch (Throwable $throwable) {
+            Log::error($throwable);
+        }
+
         // Proceed to the next middleware
         return $next($request);
     }
@@ -56,7 +89,9 @@ class LogRequest
     public function terminate($request, $response): void
     {
         try {
-            if ( ! $this->requestLogOptionsService->isRequestLogEnabled()) {
+
+            // If the request is blacklisted or request log is not enabled, then receivedRequest was never set.
+            if (is_null($this->receivedRequest)) {
                 return;
             }
 
@@ -66,28 +101,16 @@ class LogRequest
                 $executionTime = 0;
             }
 
-            // We need to check if the path of the current request is blacklisted
-            // if it is we out-out here and to not write a RequestLog entry
-            if ($this->routeIsBlacklisted($request)) {
-                return;
-            }
-
-            RequestLog::create([
-                'client_ip'          => $request->ip(),
-                'user_agent'         => $request->userAgent(),
-                'method'             => $request->method(),
-                'status'             => $response->status(),
-                'url'                => $request->url(),
-                'root'               => $request->root(),
-                'path'               => $request->path(),
-                'query_string'       => SecurityUtility::getQueryWithMaskingApplied($request),
-                'request_headers'    => SecurityUtility::getHeadersWithMaskingApplied($request),
-                'request_body'       => SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
+            // update the receivedRequest with response data, then save to database again.
+            $this->receivedRequest->update([
                 'response_headers'   => json_encode($response->headers->all()),
                 'response_body'      => $response->getContent() ?: '{}',
                 'response_exception' => json_encode($response->exception),
                 'execution_time'     => $executionTime,
             ]);
+
+            $this->receivedRequest->save();
+
         } catch (Throwable $throwable) {
             Log::error($throwable);
         }
