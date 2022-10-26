@@ -81,7 +81,7 @@ class LogRequest
     }
 
     /**
-     * Writes the RequestLog to the database once the request has terminated
+     * Updates the RequestLog in the database once the request has terminated
      *
      * @param mixed $request
      * @param mixed $response
@@ -91,7 +91,6 @@ class LogRequest
     public function terminate($request, $response): void
     {
         try {
-
             // If the request is blacklisted or request log is not enabled, then receivedRequest was never set.
             if ( ! isset($this->receivedRequest)) {
                 return;

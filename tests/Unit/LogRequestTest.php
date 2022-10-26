@@ -2,6 +2,9 @@
 
 namespace Tests\Unit;
 
+use Cego\RequestLog\Services\RequestLogOptionsService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 use Cego\RequestLog\Models\RequestLog;
 use Illuminate\Support\Facades\Config;
@@ -62,6 +65,7 @@ class LogRequestTest extends TestCase
 
         $this->assertEquals('[ MASKED ]', $loggedHeaders['x-encrypt-this-header'][0]);
         $this->assertEquals('This is a non-secret header', $loggedHeaders['x-dont-encrypt-this-header'][0]);
+
     }
 
     /** @test */
@@ -156,5 +160,23 @@ class LogRequestTest extends TestCase
         $this->assertEquals('{"token":"[ MASKED ]","cake":"not-secret"}', $requestLog->query_string);
         $this->assertEquals('[ MASKED ]', $loggedHeaders['authorization'][0]);
         $this->assertEquals('Not Secret', $loggedHeaders['something-else'][0]);
+    }
+
+    /** @test */
+    public function it_saves_request_to_db_immediately_when_received()
+    {
+        // Arrange
+        $req = Request::create("something");
+        $service = new RequestLogOptionsService();
+        $requestLog = new LogRequest($service);
+
+        // Act -> mock closure given to ensure terminate function is not hit
+        $requestLog->handle($req, function ($r) {});
+
+        // Assert
+        $this->assertDatabaseCount('request_logs', 1);
+        $reqLog = RequestLog::query()->firstOrFail();
+        $this->assertEquals(0, $reqLog->status);
+        $this->assertEquals("http://localhost/something", $reqLog->url);
     }
 }
