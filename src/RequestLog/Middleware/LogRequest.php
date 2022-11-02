@@ -55,20 +55,20 @@ class LogRequest
 
                 // Save request to database immediately so that we can see that it was received even if it is timed out
                 $this->receivedRequest = RequestLog::create([
-                    'client_ip' => $request->ip(),
-                    'user_agent' => $request->userAgent(),
-                    'method' => $request->method(),
-                    'status' => 0,
-                    'url' => $request->url(),
-                    'root' => $request->root(),
-                    'path' => $request->path(),
-                    'query_string' => SecurityUtility::getQueryWithMaskingApplied($request),
-                    'request_headers' => SecurityUtility::getHeadersWithMaskingApplied($request),
-                    'request_body' => SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
-                    'response_headers' => '[]',
-                    'response_body' => '{}',
+                    'client_ip'          => $request->ip(),
+                    'user_agent'         => $request->userAgent(),
+                    'method'             => $request->method(),
+                    'status'             => 0,
+                    'url'                => $request->url(),
+                    'root'               => $request->root(),
+                    'path'               => $request->path(),
+                    'query_string'       => SecurityUtility::getQueryWithMaskingApplied($request),
+                    'request_headers'    => SecurityUtility::getHeadersWithMaskingApplied($request),
+                    'request_body'       => SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
+                    'response_headers'   => '[]',
+                    'response_body'      => '{}',
                     'response_exception' => '[]',
-                    'execution_time' => 0,
+                    'execution_time'     => 0,
                 ]);
             }
         } catch (Throwable $throwable) {
@@ -103,7 +103,7 @@ class LogRequest
 
             // Update the receivedRequest in the database with response data
             $this->receivedRequest->update([
-                'status' => $response->status(),
+                'status'             => $response->status(),
                 'response_headers'   => json_encode($response->headers->all()),
                 'response_body'      => $response->getContent() ?: '{}',
                 'response_exception' => json_encode($response->exception),
