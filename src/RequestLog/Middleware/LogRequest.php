@@ -103,7 +103,7 @@ class LogRequest
 
             // Update the receivedRequest in the database with response data
             $this->receivedRequest->update([
-                'status' => 5,//$response->getStatus(),
+                'status' => $response->getStatus(),
                 'response_headers'   => json_encode($response->headers->all()),
                 'response_body'      => $response->getContent() ?: '{}',
                 'response_exception' => json_encode($response->exception),
