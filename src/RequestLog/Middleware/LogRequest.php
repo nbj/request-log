@@ -72,7 +72,6 @@ class LogRequest
                 ]);
             }
         } catch (Throwable $throwable) {
-            echo($throwable->getMessage());
             Log::error($throwable);
         }
 
@@ -102,16 +101,14 @@ class LogRequest
                 $executionTime = 0;
             }
 
-            // Update the receivedRequest with response data, then save changes to the database.
+            // Update the receivedRequest in the database with response data
             $this->receivedRequest->update([
-                'status' => $response->getStatus(),
+                'status' => 5,//$response->getStatus(),
                 'response_headers'   => json_encode($response->headers->all()),
                 'response_body'      => $response->getContent() ?: '{}',
                 'response_exception' => json_encode($response->exception),
                 'execution_time'     => $executionTime,
             ]);
-
-            $this->receivedRequest->save();
 
         } catch (Throwable $throwable) {
             Log::error($throwable);
