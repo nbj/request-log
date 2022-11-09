@@ -166,17 +166,15 @@ class LogRequestTest extends TestCase
     public function it_saves_request_to_db_immediately_when_received()
     {
         // Arrange
-        $req = Request::create("something");
+        $request = Request::create("something");
         $service = new RequestLogOptionsService();
         $requestLog = new LogRequest($service);
 
         // Act -> mock closure given to ensure terminate function is not hit
-        $requestLog->handle($req, function ($r) {});
+        $requestLog->handle($request, function ($r) {});
 
         // Assert
         $this->assertDatabaseCount('request_logs', 1);
-        $reqLog = RequestLog::query()->firstOrFail();
-        $this->assertEquals(0, $reqLog->status);
-        $this->assertEquals("http://localhost/something", $reqLog->url);
+        $this->assertDatabaseHas(RequestLog::class, ["status" => 0, "url" => "http://localhost/something"]);
     }
 }
