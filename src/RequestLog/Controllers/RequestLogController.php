@@ -65,13 +65,7 @@ class RequestLogController extends Controller
      */
     public function show(RequestLog $requestLog)
     {
-        $isEnabled = $this->requestLogOptionsService->isRequestLogEnabled(false);
-
-        if ($isEnabled) {
-            return view("request-logs::show")->with(["requestLog" => $requestLog]);
-        }
-
-        return redirect()->route('request-logs.index');
+        return view("request-logs::show")->with(["requestLog" => $requestLog]);
     }
 
     /**
