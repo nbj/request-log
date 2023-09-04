@@ -15,18 +15,6 @@ return [
     'enabled' => env('REQUEST_LOG_ENABLED', false),
 
     /*
-    | Sets whether automatic log clean up is enabled
-    */
-
-    'automaticLogCleanUpEnabled' => true,
-
-    /*
-    | Sets the retention of logs in number of days
-    */
-
-    'logRetentionNumberOfDays' => 14,
-
-    /*
     | Set of headers and query parameters to redact from the log
     */
 
