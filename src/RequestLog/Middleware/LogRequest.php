@@ -2,14 +2,14 @@
 
 namespace Cego\RequestLog\Middleware;
 
-use Cego\RequestLog\Data\RequestLog;
 use Closure;
-use Symfony\Component\HttpFoundation\Response;
 use Throwable;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Cego\RequestLog\Data\RequestLog;
 use Illuminate\Support\Facades\Config;
 use Cego\RequestLog\Utilities\SecurityUtility;
-use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class LogRequest
 {
@@ -43,7 +43,7 @@ class LogRequest
     {
         try {
 
-            if (! config('request-log.enabled') || $this->routeIsBlacklisted($request)) {
+            if ( ! config('request-log.enabled') || $this->routeIsBlacklisted($request)) {
                 return;
             }
 

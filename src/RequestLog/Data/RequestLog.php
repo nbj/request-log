@@ -25,8 +25,6 @@ class RequestLog
     ) {
     }
 
-
-
     public function log(LoggerInterface $logger)
     {
         $context = [
