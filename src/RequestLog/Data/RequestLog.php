@@ -30,32 +30,35 @@ class RequestLog
     {
         $context = [
             'client' => [
-                'ip' => $this->clientIp,
+                'ip'         => $this->clientIp,
                 'user_agent' => $this->userAgent
             ],
             'http' => [
                 'request' => [
-                    'url' => $this->url,
-                    'root' => $this->root,
-                    'path' => $this->path,
+                    'url'          => $this->url,
+                    'root'         => $this->root,
+                    'path'         => $this->path,
                     'query_string' => $this->queryString,
-                    'body' => [
+                    'body'         => [
                         'content' => $this->requestBody
                     ],
                     'headers' => $this->requestHeaders,
-                    'method' => $this->method
+                    'method'  => $this->method
                 ],
                 'response' => [
                     'body' => [
                         'content' => $this->responseBody
                     ],
-                    'headers' => $this->responseHeaders,
+                    'headers'     => $this->responseHeaders,
                     'status_code' => $this->status
                 ]
             ],
             'event' => [
                 'duration' => $this->executionTime * 1000 // In nanoseconds, see https://www.elastic.co/guide/en/ecs/current/ecs-event.html
             ],
+            'log' => [
+                'type' => 'request-logs'
+            ]
         ];
 
         if($this->responseException !== null) {
