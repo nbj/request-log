@@ -62,7 +62,7 @@ class LogRequest
                 requestHeaders: SecurityUtility::getHeadersWithMaskingApplied($request),
                 requestBody: SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
                 status: $response->getStatusCode(),
-                responseHeaders: json_encode($response->headers->all()),
+                responseHeaders: $response->headers->all(),
                 responseBody: $response->getContent() ?: '{}',
                 responseException: $response->exception,
                 executionTime: $executionTime
