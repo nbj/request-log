@@ -8,8 +8,6 @@ use Psr\Log\LoggerInterface;
 class RequestLog
 {
     public function __construct(
-        public readonly string $clientIp,
-        public readonly string $userAgent,
         public readonly string $method,
         public readonly string $url,
         public readonly string $root,
@@ -28,10 +26,6 @@ class RequestLog
     public function log(LoggerInterface $logger)
     {
         $context = [
-            'client' => [
-                'ip'         => $this->clientIp,
-                'user_agent' => $this->userAgent
-            ],
             'http' => [
                 'request' => [
                     'url'          => $this->url,

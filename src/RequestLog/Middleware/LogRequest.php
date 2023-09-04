@@ -54,8 +54,6 @@ class LogRequest
             }
 
             (new RequestLog(
-                clientIp: $request->ip(),
-                userAgent: $request->userAgent(),
                 method: $request->method(),
                 url: $request->url(),
                 root: $request->root(),
@@ -63,7 +61,7 @@ class LogRequest
                 queryString: SecurityUtility::getQueryWithMaskingApplied($request),
                 requestHeaders: SecurityUtility::getHeadersWithMaskingApplied($request),
                 requestBody: SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
-                status: $response->status(),
+                status: $response->getStatusCode(),
                 responseHeaders: json_encode($response->headers->all()),
                 responseBody: $response->getContent() ?: '{}',
                 responseException: $response->exception,
