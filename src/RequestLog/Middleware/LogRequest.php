@@ -4,7 +4,7 @@ namespace Cego\RequestLog\Middleware;
 
 use Cego\RequestLog\Data\RequestLog;
 use Closure;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
@@ -23,7 +23,7 @@ class LogRequest
     /**
      * Holds the received request
      */
-    protected RequestLog $receivedRequest;
+    protected ?RequestLog $receivedRequest = null;
 
     /**
      * Handle an incoming request.
@@ -31,28 +31,6 @@ class LogRequest
     public function handle(Request $request, Closure $next): Response
     {
         $this->startTime = microtime(true);
-
-        try {
-            // We need to check if the path of the current request is blacklisted
-            // if it is we out-out here and to not write a RequestLog entry
-            if (config('request-log.enabled') && ! $this->routeIsBlacklisted($request)) {
-
-                // Save request to database immediately so that we can see that it was received even if it is timed out
-                $this->receivedRequest = new RequestLog(
-                    clientIp: $request->ip(),
-                    userAgent: $request->userAgent(),
-                    method: $request->method(),
-                    url: $request->url(),
-                    root: $request->root(),
-                    path: $request->path(),
-                    queryString: SecurityUtility::getQueryWithMaskingApplied($request),
-                    requestHeaders: SecurityUtility::getHeadersWithMaskingApplied($request),
-                    requestBody: SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
-                );
-            }
-        } catch (Throwable $throwable) {
-            Log::error($throwable);
-        }
 
         // Proceed to the next middleware
         return $next($request);
@@ -64,8 +42,8 @@ class LogRequest
     public function terminate(Request $request, Response $response): void
     {
         try {
-            // If the request is blacklisted or request log is not enabled, then receivedRequest was never set.
-            if ( ! isset($this->receivedRequest)) {
+
+            if (! config('request-log.enabled') || $this->routeIsBlacklisted($request)) {
                 return;
             }
 
@@ -75,15 +53,22 @@ class LogRequest
                 $executionTime = 0;
             }
 
-            // Update the receivedRequest in the database with response data
-            $requestLog = $this->receivedRequest;
-            $requestLog->status = $response->status();
-            $requestLog->responseHeaders = json_encode($response->headers->all());
-            $requestLog->responseBody = $response->getContent() ?: '{}';
-            $requestLog->responseException = $response->exception;
-            $requestLog->executionTime = $executionTime;
-
-            $requestLog->log(Log::getLogger());
+            (new RequestLog(
+                clientIp: $request->ip(),
+                userAgent: $request->userAgent(),
+                method: $request->method(),
+                url: $request->url(),
+                root: $request->root(),
+                path: $request->path(),
+                queryString: SecurityUtility::getQueryWithMaskingApplied($request),
+                requestHeaders: SecurityUtility::getHeadersWithMaskingApplied($request),
+                requestBody: SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
+                status: $response->status(),
+                responseHeaders: json_encode($response->headers->all()),
+                responseBody: $response->getContent() ?: '{}',
+                responseException: $response->exception,
+                executionTime: $executionTime
+            ))->log(Log::getLogger());
 
         } catch (Throwable $throwable) {
             Log::error($throwable);

@@ -17,14 +17,15 @@ class RequestLog
         public readonly string $queryString,
         public readonly string $requestHeaders,
         public readonly string $requestBody,
+        public readonly int $status,
+        public readonly string $responseHeaders,
+        public readonly string $responseBody,
+        public ?Exception $responseException,
+        public null|float|string $executionTime,
     ) {
     }
 
-    public ?int $status;
-    public ?string $responseHeaders;
-    public ?string $responseBody;
-    public ?Exception $responseException;
-    public null|float|string $executionTime;
+
 
     public function log(LoggerInterface $logger)
     {
