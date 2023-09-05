@@ -16,7 +16,7 @@ class LogRequest
     /**
      * Holds the start time of the request
      *
-     * @var string|float $startTime
+     * @var int $startTime
      */
     protected $startTime;
 
@@ -30,7 +30,7 @@ class LogRequest
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $this->startTime = microtime(true);
+        $this->startTime = hrtime(true);
 
         // Proceed to the next middleware
         return $next($request);
@@ -47,11 +47,7 @@ class LogRequest
                 return;
             }
 
-            $executionTime = microtime(true) - $this->startTime;
-
-            if ($executionTime < 0) {
-                $executionTime = 0;
-            }
+            $executionTimeNs = hrtime(true) - $this->startTime;
 
             (new RequestLog(
                 method: $request->method(),
@@ -65,7 +61,7 @@ class LogRequest
                 responseHeaders: $response->headers->all(),
                 responseBody: $response->getContent() ?: '{}',
                 responseException: $response->exception,
-                executionTime: $executionTime
+                executionTimeNs: $executionTimeNs
             ))->log(Log::getLogger());
 
         } catch (Throwable $throwable) {

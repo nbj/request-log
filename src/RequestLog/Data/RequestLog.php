@@ -19,7 +19,7 @@ class RequestLog
         public readonly array $responseHeaders,
         public readonly string $responseBody,
         public ?Exception $responseException,
-        public null|float|string $executionTime,
+        public int $executionTimeNs,
     ) {
     }
 
@@ -47,7 +47,7 @@ class RequestLog
                 ]
             ],
             'event' => [
-                'duration' => $this->executionTime * 1000 // In nanoseconds, see https://www.elastic.co/guide/en/ecs/current/ecs-event.html
+                'duration' => $this->executionTimeNs // In nanoseconds, see https://www.elastic.co/guide/en/ecs/current/ecs-event.html
             ],
             'log' => [
                 'type' => 'request-logs'
