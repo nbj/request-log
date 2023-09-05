@@ -16,6 +16,7 @@ class RequestLogServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(LogRequest::class);
     }
 
     /**

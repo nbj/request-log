@@ -30,6 +30,7 @@ return [
             'Authorization',
             'php-auth-pw',
             'php-auth-user',
+            'cf-access-jwt-assertion',
         ]
     ],
 
