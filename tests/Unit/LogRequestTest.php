@@ -201,7 +201,7 @@ class LogRequestTest extends TestCase
         // Arrange
         $loggerMock = $this->createMock(Logger::class);
         Log::partialMock()->shouldReceive('getLogger')->once()->withAnyArgs()->andReturn($loggerMock);
-
+        Log::withoutContext()
         // Assert debug was called on loggerMock once with {} request body
         $loggerMock->expects($this->once())->method('debug')->with($this->stringStartsWith('Timing for'))->willReturnCallback(function ($message, $context) {
             $loggedCookies = $context['http']['response']['cookies'];
