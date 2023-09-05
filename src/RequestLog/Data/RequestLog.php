@@ -8,8 +8,6 @@ use Psr\Log\LoggerInterface;
 class RequestLog
 {
     public function __construct(
-        public readonly string $clientIp,
-        public readonly string $userAgent,
         public readonly string $method,
         public readonly string $url,
         public readonly string $root,
@@ -51,12 +49,6 @@ class RequestLog
                     'headers'     => $this->responseHeaders,
                     'status_code' => $this->status
                 ]
-            ],
-            'user_agent' => [
-                'original' => $this->userAgent
-            ],
-            'client' => [
-                'ip' => $this->clientIp
             ],
             'event' => [
                 'duration' => $this->executionTimeNs // In nanoseconds, see https://www.elastic.co/guide/en/ecs/current/ecs-event.html
