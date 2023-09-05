@@ -34,6 +34,8 @@ return [
         ],
         'cookies' => [
             'cegosso',
+            'refresh_token',
+            'access_token',
         ]
     ],
 

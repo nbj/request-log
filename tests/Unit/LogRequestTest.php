@@ -217,6 +217,6 @@ class LogRequestTest extends TestCase
         $kernel->pushMiddleware(SetCookieMiddleware::class);
 
         // Act
-        $this->withUnencryptedCookies(['SECRET_COOKIE' => 'abcd', 'NON_SECRET_COOKIE' => 'efgh'])->post('/test', [], $headers);
+        $this->post('/test', [], $headers);
     }
 }
