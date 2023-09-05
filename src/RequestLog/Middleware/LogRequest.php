@@ -61,8 +61,6 @@ class LogRequest
             unset($responseHeaders['set-cookie']);
 
             (new RequestLog(
-                clientIp: $request->ip(),
-                userAgent: $request->userAgent(),
                 method: $request->method(),
                 url: $request->url(),
                 root: $request->root(),
