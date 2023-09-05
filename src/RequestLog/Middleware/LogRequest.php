@@ -20,6 +20,12 @@ class LogRequest
      */
     protected $startTime;
 
+    /** Holds the request cookies. Some middleware will change the cookies, thus we need to save it from handle
+     *
+     * @var array<string, string> $requestCookies
+     */
+    protected $requestCookies = [];
+
     /**
      * Holds the received request
      */
@@ -31,6 +37,8 @@ class LogRequest
     public function handle(Request $request, Closure $next): Response
     {
         $this->startTime = hrtime(true);
+
+        $this->requestCookies = $request->cookies->all();
 
         // Proceed to the next middleware
         return $next($request);
@@ -49,6 +57,9 @@ class LogRequest
 
             $executionTimeNs = hrtime(true) - $this->startTime;
 
+            $responseHeaders = $response->headers->all();
+            unset($responseHeaders['set-cookie']);
+
             (new RequestLog(
                 method: $request->method(),
                 url: $request->url(),
@@ -56,9 +67,11 @@ class LogRequest
                 path: $request->path(),
                 queryString: SecurityUtility::getQueryWithMaskingApplied($request),
                 requestHeaders: SecurityUtility::getHeadersWithMaskingApplied($request),
+                requestCookies: SecurityUtility::getCookiesWithMaskingApplied($this->requestCookies, $request),
                 requestBody: SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
                 status: $response->getStatusCode(),
-                responseHeaders: $response->headers->all(),
+                responseHeaders: $responseHeaders,
+                responseCookies: SecurityUtility::getResponseCookiesWithMaskingApplied($response->headers->getCookies(), $request),
                 responseBody: $response->getContent() ?: '{}',
                 responseException: $response->exception,
                 executionTimeNs: $executionTimeNs

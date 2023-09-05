@@ -14,9 +14,11 @@ class RequestLog
         public readonly string $path,
         public readonly string $queryString,
         public readonly array $requestHeaders,
+        public readonly array $requestCookies,
         public readonly string $requestBody,
         public readonly int $status,
         public readonly array $responseHeaders,
+        public readonly array $responseCookies,
         public readonly string $responseBody,
         public ?Exception $responseException,
         public int $executionTimeNs,
@@ -35,6 +37,7 @@ class RequestLog
                     'body'         => [
                         'content' => $this->requestBody
                     ],
+                    'cookies' => $this->requestCookies,
                     'headers' => $this->requestHeaders,
                     'method'  => $this->method
                 ],
@@ -42,6 +45,7 @@ class RequestLog
                     'body' => [
                         'content' => $this->responseBody
                     ],
+                    'cookies'     => $this->responseCookies,
                     'headers'     => $this->responseHeaders,
                     'status_code' => $this->status
                 ]

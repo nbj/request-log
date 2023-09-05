@@ -31,6 +31,9 @@ return [
             'php-auth-pw',
             'php-auth-user',
             'cf-access-jwt-assertion',
+        ],
+        'cookies' => [
+            'cegosso',
         ]
     ],
 
