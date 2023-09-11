@@ -50,7 +50,7 @@ class LogRequest
      */
     public function terminate(Request $request, Response $response): void
     {
-        ApmWrapper::captureCurrentSpan('RequestLogMiddleware::terminate', 'application', function () use ($request, $response) {
+        ApmWrapper::captureCurrentSpan('RequestLogMiddleware::terminate', 'app', function () use ($request, $response) {
             $this->logRequest($request, $response);
         });
     }
