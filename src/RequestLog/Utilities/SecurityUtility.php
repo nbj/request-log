@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
+use Symfony\Component\HttpFoundation\Cookie;
 
 class SecurityUtility
 {
@@ -59,6 +60,9 @@ class SecurityUtility
             }
         }
 
+        // Remove cookies header, as it is handled separately
+        unset($headers['cookie']);
+
         return $headers;
     }
 
@@ -87,5 +91,60 @@ class SecurityUtility
         }
 
         return json_encode($data);
+    }
+
+    /**
+     * @param array<string, string> $cookies
+     *
+     * @return array<string, string>
+     */
+    public static function getCookiesWithMaskingApplied(array $cookies, $request): array
+    {
+
+        $senstiveHeaderIn = $request->header('X-SENSITIVE-REQUEST-COOKIES-JSON');
+        $sensitiveCookies = $senstiveHeaderIn ? json_decode($senstiveHeaderIn) : [];
+        $redactedCookies = Config::get('request-log.redact.cookies', []);
+
+        $cookiesToMask = collect($sensitiveCookies)->concat($redactedCookies);
+
+        foreach ($cookiesToMask as $sensitiveCookie) {
+            if (isset($cookies[$sensitiveCookie])) {
+                $cookies[$sensitiveCookie] = '[ MASKED ]';
+            }
+        }
+
+        return $cookies;
+    }
+
+    /**
+     * @param array<string, Cookie> $cookies
+     *
+     * @return array<string, string>
+     */
+    public static function getResponseCookiesWithMaskingApplied(array $cookies, $request): array
+    {
+
+        $senstiveHeaderIn = $request->header('X-SENSITIVE-REQUEST-COOKIES-JSON');
+        $sensitiveCookies = $senstiveHeaderIn ? json_decode($senstiveHeaderIn) : [];
+        $redactedCookies = Config::get('request-log.redact.cookies', []);
+
+        $cookiesToMask = collect($sensitiveCookies)->concat($redactedCookies);
+
+        $cookieResult = [];
+
+        foreach($cookies as $cookie) {
+            $cookieName = $cookie->getName();
+            $cookieResult[$cookieName] = [
+                'value'    => $cookiesToMask->contains($cookieName) ? '[ MASKED ]' : $cookie->getValue(),
+                'domain'   => $cookie->getDomain(),
+                'expire'   => $cookie->getExpiresTime(),
+                'path'     => $cookie->getPath(),
+                'secure'   => $cookie->isSecure(),
+                'httpOnly' => $cookie->isHttpOnly(),
+                'sameSite' => $cookie->getSameSite()
+            ];
+        }
+
+        return $cookieResult;
     }
 }

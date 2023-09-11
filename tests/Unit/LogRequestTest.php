@@ -9,6 +9,7 @@ use Tests\TestCase;
 use Cego\RequestLog\Models\RequestLog;
 use Illuminate\Support\Facades\Config;
 use Cego\RequestLog\Middleware\LogRequest;
+use Tests\Utility\SetCookieMiddleware;
 
 class LogRequestTest extends TestCase
 {
@@ -170,5 +171,52 @@ class LogRequestTest extends TestCase
 
         // Act
         $this->post('/test?token=very-secret&cake=not-secret', [], ['Authorization' => 'very secret', 'something-else' => 'Not Secret']);
+    }
+
+    /** @test */
+    public function it_masks_request_cookies()
+    {
+        // Arrange
+        $loggerMock = $this->createMock(Logger::class);
+        Log::partialMock()->shouldReceive('getLogger')->once()->withAnyArgs()->andReturn($loggerMock);
+
+        // Assert debug was called on loggerMock once with {} request body
+        $loggerMock->expects($this->once())->method('debug')->with($this->stringStartsWith('Timing for'))->willReturnCallback(function ($message, $context) {
+            $loggedCookies = $context['http']['request']['cookies'];
+            $this->assertEquals('[ MASKED ]', $loggedCookies['SECRET_COOKIE']);
+            $this->assertEquals('efgh', $loggedCookies['NON_SECRET_COOKIE']);
+        });
+
+        $headers = [
+            'X-SENSITIVE-REQUEST-COOKIES-JSON' => json_encode(['SECRET_COOKIE']),
+        ];
+
+        // Act
+        $this->withUnencryptedCookies(['SECRET_COOKIE' => 'abcd', 'NON_SECRET_COOKIE' => 'efgh'])->post('/test', [], $headers);
+    }
+
+    /** @test */
+    public function it_masks_response_cookies(): void
+    {
+        // Arrange
+        $loggerMock = $this->createMock(Logger::class);
+        Log::partialMock()->shouldReceive('getLogger')->once()->withAnyArgs()->andReturn($loggerMock);
+
+        // Assert debug was called on loggerMock once with {} request body
+        $loggerMock->expects($this->once())->method('debug')->with($this->stringStartsWith('Timing for'))->willReturnCallback(function ($message, $context) {
+            $loggedCookies = $context['http']['response']['cookies'];
+            $this->assertEquals('[ MASKED ]', $loggedCookies['SECRET_COOKIE']['value']);
+            $this->assertEquals('efgh', $loggedCookies['NON_SECRET_COOKIE']['value']);
+        });
+
+        $headers = [
+            'X-SENSITIVE-REQUEST-COOKIES-JSON' => json_encode(['SECRET_COOKIE']),
+        ];
+
+        $kernel = app('Illuminate\Contracts\Http\Kernel');
+        $kernel->pushMiddleware(SetCookieMiddleware::class);
+
+        // Act
+        $this->post('/test', [], $headers);
     }
 }
