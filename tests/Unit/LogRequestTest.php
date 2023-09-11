@@ -3,8 +3,8 @@
 namespace Tests\Unit;
 
 use Cego\RequestLog\Services\RequestLogOptionsService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Monolog\Logger;
 use Tests\TestCase;
 use Cego\RequestLog\Models\RequestLog;
 use Illuminate\Support\Facades\Config;
@@ -35,12 +35,16 @@ class LogRequestTest extends TestCase
         $methods = ['get', 'post', 'put', 'patch', 'delete'];
 
         foreach ($methods as $method) {
-            RequestLog::query()->truncate();
-            $this->$method('/test', $data, []);
+            $loggerMock = $this->createMock(Logger::class);
 
-            // Assert
-            $this->assertDatabaseCount('request_logs', 1);
-            $this->assertEquals('{}', RequestLog::first()->request_body);
+            Log::partialMock()->shouldReceive('getLogger')->once()->withAnyArgs()->andReturn($loggerMock);
+
+            // Assert debug was called on loggerMock once with {} request body
+            $loggerMock->expects($this->once())->method('debug')->with($this->stringStartsWith('Timing for'))->willReturnCallback(function ($message, $context) {
+                $this->assertEquals('{}', $context['http']['request']['body']['content']);
+            });
+
+            $this->$method('/test', $data, []);
         }
     }
 
@@ -48,6 +52,17 @@ class LogRequestTest extends TestCase
     public function it_masks_request_headers()
     {
         // Arrange
+        $loggerMock = $this->createMock(Logger::class);
+        Log::partialMock()->shouldReceive('getLogger')->once()->withAnyArgs()->andReturn($loggerMock);
+
+        // Assert debug was called on loggerMock once with {} request body
+        $loggerMock->expects($this->once())->method('debug')->with($this->stringStartsWith('Timing for'))->willReturnCallback(function ($message, $context) {
+            $loggedHeaders = $context['http']['request']['headers'];
+            $this->assertEquals('[ MASKED ]', $loggedHeaders['x-encrypt-this-header'][0]);
+            $this->assertEquals('This is a non-secret header', $loggedHeaders['x-dont-encrypt-this-header'][0]);
+        });
+
+
         $headers = [
             'X-SENSITIVE-REQUEST-HEADERS-JSON' => json_encode(['X-ENCRYPT-THIS-HEADER']),
             'X-ENCRYPT-THIS-HEADER'            => 'This is a secret header',
@@ -56,22 +71,23 @@ class LogRequestTest extends TestCase
 
         // Act
         $this->post('/test', [], $headers);
-
-        // Assert
-        $this->assertDatabaseCount('request_logs', 1);
-
-        $requestLog = RequestLog::first();
-        $loggedHeaders = json_decode($requestLog->request_headers, true);
-
-        $this->assertEquals('[ MASKED ]', $loggedHeaders['x-encrypt-this-header'][0]);
-        $this->assertEquals('This is a non-secret header', $loggedHeaders['x-dont-encrypt-this-header'][0]);
-
     }
 
     /** @test */
     public function it_masks_duplicate_request_headers()
     {
         // Arrange
+        $loggerMock = $this->createMock(Logger::class);
+        Log::partialMock()->shouldReceive('getLogger')->once()->withAnyArgs()->andReturn($loggerMock);
+
+        // Assert debug was called on loggerMock once with {} request body
+        $loggerMock->expects($this->once())->method('debug')->with($this->stringStartsWith('Timing for'))->willReturnCallback(function ($message, $context) {
+            $loggedHeaders = $context['http']['request']['headers'];
+            $this->assertEquals('[ MASKED ]', $loggedHeaders['x-encrypt-this-header'][0]);
+            $this->assertEquals('[ MASKED ]', $loggedHeaders['x-encrypt-this-header'][1]);
+            $this->assertEquals('This is a non-secret header', $loggedHeaders['x-dont-encrypt-this-header'][0]);
+        });
+
         $headers = [
             'X-SENSITIVE-REQUEST-HEADERS-JSON' => json_encode(['X-ENCRYPT-THIS-HEADER']),
             'X-ENCRYPT-THIS-HEADER'            => ['This is a secret header', 'And we define it twice'],
@@ -80,22 +96,33 @@ class LogRequestTest extends TestCase
 
         // Act
         $this->post('/test', [], $headers);
-
-        // Assert
-        $this->assertDatabaseCount('request_logs', 1);
-
-        $requestLog = RequestLog::first();
-        $loggedHeaders = json_decode($requestLog->request_headers, true);
-
-        $this->assertEquals('[ MASKED ]', $loggedHeaders['x-encrypt-this-header'][0]);
-        $this->assertEquals('[ MASKED ]', $loggedHeaders['x-encrypt-this-header'][1]);
-        $this->assertEquals('This is a non-secret header', $loggedHeaders['x-dont-encrypt-this-header'][0]);
     }
 
     /** @test */
     public function it_masks_request_body()
     {
         // Arrange
+        $loggerMock = $this->createMock(Logger::class);
+        Log::partialMock()->shouldReceive('getLogger')->once()->withAnyArgs()->andReturn($loggerMock);
+
+        // Assert debug was called on loggerMock once with {} request body
+        $loggerMock->expects($this->once())->method('debug')->with($this->stringStartsWith('Timing for'))->willReturnCallback(function ($message, $context) {
+            $loggedBody = json_decode($context['http']['request']['body']['content'], true);
+            $this->assertEquals([
+                'password'  => '[ MASKED ]',
+                'something' => [
+                    'very' => [
+                        'nested' => '[ MASKED ]'
+                    ]
+                ],
+                'person' => [
+                    'sensitive_data'   => '[ MASKED ]',
+                    'insensitive_data' => 'not secret',
+                ],
+                'secret_array' => '[ MASKED ]'
+            ], $loggedBody);
+        });
+
         $data = [
             'password'  => '12345678',
             'something' => [
@@ -124,57 +151,24 @@ class LogRequestTest extends TestCase
 
         // Act
         $this->postJson('/test', $data, $headers);
-
-        // Assert
-        $this->assertDatabaseCount('request_logs', 1);
-        $loggedBody = json_decode(RequestLog::first()->request_body, true);
-        $this->assertEquals([
-            'password'  => '[ MASKED ]',
-            'something' => [
-                'very' => [
-                    'nested' => '[ MASKED ]'
-                ]
-            ],
-            'person' => [
-                'sensitive_data'   => '[ MASKED ]',
-                'insensitive_data' => 'not secret',
-            ],
-            'secret_array' => '[ MASKED ]'
-        ], $loggedBody);
     }
 
     /** @test */
     public function it_tests()
     {
         // Arrange
+        $loggerMock = $this->createMock(Logger::class);
+        Log::partialMock()->shouldReceive('getLogger')->once()->withAnyArgs()->andReturn($loggerMock);
+
+        // Assert debug was called on loggerMock once with {} request body
+        $loggerMock->expects($this->once())->method('debug')->with($this->stringStartsWith('Timing for'))->willReturnCallback(function ($message, $context) {
+            $loggedHeaders = $context['http']['request']['headers'];
+            $this->assertEquals('{"token":"[ MASKED ]","cake":"not-secret"}', $context['http']['request']['query_string']);
+            $this->assertEquals('[ MASKED ]', $loggedHeaders['authorization'][0]);
+            $this->assertEquals('Not Secret', $loggedHeaders['something-else'][0]);
+        });
 
         // Act
         $this->post('/test?token=very-secret&cake=not-secret', [], ['Authorization' => 'very secret', 'something-else' => 'Not Secret']);
-
-        // Assert
-        $this->assertDatabaseCount('request_logs', 1);
-        /** @var RequestLog $requestLog */
-        $requestLog = RequestLog::query()->firstOrFail();
-        $loggedHeaders = json_decode($requestLog->request_headers, true);
-
-        $this->assertEquals('{"token":"[ MASKED ]","cake":"not-secret"}', $requestLog->query_string);
-        $this->assertEquals('[ MASKED ]', $loggedHeaders['authorization'][0]);
-        $this->assertEquals('Not Secret', $loggedHeaders['something-else'][0]);
-    }
-
-    /** @test */
-    public function it_saves_request_to_db_immediately_when_received()
-    {
-        // Arrange
-        $request = Request::create("something");
-        $service = new RequestLogOptionsService();
-        $requestLog = new LogRequest($service);
-
-        // Act -> mock closure given to ensure terminate function is not hit
-        $requestLog->handle($request, function ($r) {});
-
-        // Assert
-        $this->assertDatabaseCount('request_logs', 1);
-        $this->assertDatabaseHas(RequestLog::class, ["status" => 0, "url" => "http://localhost/something"]);
     }
 }

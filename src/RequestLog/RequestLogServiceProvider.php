@@ -2,14 +2,9 @@
 
 namespace Cego\RequestLog;
 
-use Illuminate\Pagination\Paginator;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
-use Cego\RequestLog\Components\StatusCode;
 use Cego\RequestLog\Middleware\LogRequest;
-use Cego\RequestLog\Components\PrettyPrint;
-use Illuminate\Console\Scheduling\Schedule;
-use Cego\RequestLog\Commands\AutomaticLogCleanup;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 class RequestLogServiceProvider extends ServiceProvider
@@ -35,11 +30,7 @@ class RequestLogServiceProvider extends ServiceProvider
     {
         $this->publishAndLoadPackageComponents();
 
-        $this->registerAndScheduleCommands();
-
         $this->pushGlobalMiddleware();
-
-        $this->setPaginatorStyling();
     }
 
     /**
@@ -61,37 +52,6 @@ class RequestLogServiceProvider extends ServiceProvider
 
         // Makes sure migrations and factories are added
         $this->loadMigrationsFrom(__DIR__ . '/../../publishable/migrations');
-
-        // Make sure that routes are added
-        $this->loadRoutesFrom(__DIR__ . '/../../publishable/routes/web.php');
-
-        // Make sure that views and view-components are added
-        $this->loadViewsFrom(__DIR__ . '/../../publishable/views', 'request-logs');
-        $this->loadViewComponentsAs('request-log', [
-            StatusCode::class,
-            PrettyPrint::class
-        ]);
-    }
-
-    /**
-     * Registers all package commands, and schedules the required ones
-     */
-    protected function registerAndScheduleCommands(): void
-    {
-        // Only register and schedule commands if we are running in CLI mode
-        if ( ! $this->app->runningInConsole()) {
-            return;
-        }
-
-        // Register package commands
-        $this->commands([
-            AutomaticLogCleanup::class
-        ]);
-
-        // Automatic schedule package commands
-        $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
-            $schedule->command('clean:request-logs')->everyTenMinutes();
-        });
     }
 
     /**
@@ -104,17 +64,5 @@ class RequestLogServiceProvider extends ServiceProvider
         // Push Middleware to global middleware stack
         $kernel = $this->app->make(Kernel::class);
         $kernel->pushMiddleware(LogRequest::class);
-    }
-
-    /**
-     * Sets the paginator styling to bootstrap if using Laravel 8
-     */
-    private function setPaginatorStyling(): void
-    {
-        // If Laravel version 8
-        if (version_compare($this->app->version(), '8.0.0', '>=') === true) {
-            // Use bootstrap for the paginator instead of tailwind, since the rest of the interface uses bootstrap
-            Paginator::useBootstrap();
-        }
     }
 }

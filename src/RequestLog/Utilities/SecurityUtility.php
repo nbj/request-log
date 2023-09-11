@@ -43,11 +43,12 @@ class SecurityUtility
      *
      * @return string
      */
-    public static function getHeadersWithMaskingApplied(Request $request): string
+    public static function getHeadersWithMaskingApplied(Request $request): array
     {
         $headers = $request->headers->all();
 
-        $sensitiveHeaders = json_decode($request->header('X-SENSITIVE-REQUEST-HEADERS-JSON')) ?: [];
+        $senstiveHeaderIn = $request->header('X-SENSITIVE-REQUEST-HEADERS-JSON');
+        $sensitiveHeaders = $senstiveHeaderIn ? json_decode($senstiveHeaderIn) : [];
         $redactedHeaders = Config::get('request-log.redact.headers', []);
 
         $headersToMask = collect($sensitiveHeaders)->concat($redactedHeaders)->map(fn (string $header) => strtolower($header));
@@ -58,7 +59,7 @@ class SecurityUtility
             }
         }
 
-        return json_encode($headers);
+        return $headers;
     }
 
     /**
