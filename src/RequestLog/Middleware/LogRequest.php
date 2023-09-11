@@ -7,6 +7,7 @@ use Throwable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Cego\RequestLog\Data\RequestLog;
+use Cego\ElasticApmWrapper\ApmWrapper;
 use Illuminate\Support\Facades\Config;
 use Cego\RequestLog\Utilities\SecurityUtility;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,8 +50,40 @@ class LogRequest
      */
     public function terminate(Request $request, Response $response): void
     {
-        try {
+        ApmWrapper::captureCurrentSpan('RequestLogMiddleware::terminate', 'application', function () use ($request, $response) {
+            $this->logRequest($request, $response);
+        });
+    }
 
+    /**
+     * Checks if the path of the request is a blacklisted route
+     *
+     * @param mixed $request
+     *
+     * @return bool
+     */
+    protected function routeIsBlacklisted($request)
+    {
+        $blacklistedRoutes = Config::get('request-log.blackListedRoutes', []);
+
+        foreach ($blacklistedRoutes as $route) {
+            if (fnmatch($route, $request->path(), FNM_PATHNAME)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return void
+     */
+    private function logRequest(Request $request, Response $response): void
+    {
+        try {
             if ( ! config('request-log.enabled') || $this->routeIsBlacklisted($request)) {
                 return;
             }
@@ -80,25 +113,5 @@ class LogRequest
         } catch (Throwable $throwable) {
             Log::error($throwable);
         }
-    }
-
-    /**
-     * Checks if the path of the request is a blacklisted route
-     *
-     * @param mixed $request
-     *
-     * @return bool
-     */
-    protected function routeIsBlacklisted($request)
-    {
-        $blacklistedRoutes = Config::get('request-log.blackListedRoutes', []);
-
-        foreach ($blacklistedRoutes as $route) {
-            if (fnmatch($route, $request->path(), FNM_PATHNAME)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
