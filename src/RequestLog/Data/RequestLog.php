@@ -59,10 +59,15 @@ class RequestLog
         ];
 
         if($this->responseException !== null) {
+            $message = $this->responseException->getMessage();
+            $message = empty($message) ? get_class($this->responseException) . ' thrown with empty message' : $message;
+
             $context['error'] = [
-                'message'     => $this->responseException->getMessage(),
-                'stack_trace' => $this->responseException->getTrace(),
-                'type'        => get_class($this->responseException)
+                'type'        => get_class($this->responseException),
+                'stack_trace' => $this->responseException->getTraceAsString(),
+                // error.code is type keyword, therefore always cast to string
+                'code'    => (string) $this->responseException->getCode(),
+                'message' => $message,
             ];
         }
 
