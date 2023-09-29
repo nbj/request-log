@@ -76,19 +76,6 @@ class LogRequest
     }
 
     /**
-     * Truncate a string to a given length
-     *
-     * @param string $string
-     * @param int $length
-     *
-     * @return string
-     */
-    protected function truncate(string $string, int $length): string
-    {
-        return mb_substr($string, 0, $length);
-    }
-
-    /**
      * @param Request $request
      * @param Response $response
      *
@@ -106,8 +93,6 @@ class LogRequest
             $responseHeaders = $response->headers->all();
             unset($responseHeaders['set-cookie']);
 
-            $truncateBodyLength = config('request-log.truncateBodyLength');
-
             (new RequestLog(
                 method: $request->method(),
                 url: $request->url(),
@@ -116,12 +101,12 @@ class LogRequest
                 queryString: SecurityUtility::getQueryWithMaskingApplied($request),
                 requestHeaders: SecurityUtility::getHeadersWithMaskingApplied($request),
                 requestCookies: SecurityUtility::getCookiesWithMaskingApplied($this->requestCookies, $request),
-                requestBody: $this->truncate(SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}', $truncateBodyLength),
+                requestBody: SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}',
                 status: $response->getStatusCode(),
                 responseHeaders: $responseHeaders,
                 responseCookies: SecurityUtility::getResponseCookiesWithMaskingApplied($response->headers->getCookies(), $request),
-                responseBody: $this->truncate($response->getContent() ?: '{}', $truncateBodyLength),
-                responseException: $response->exception ?? null,
+                responseBody: $response->getContent() ?: '{}',
+                responseException: $response->exception,
                 executionTimeNs: $executionTimeNs
             ))->log(Log::getLogger());
 
