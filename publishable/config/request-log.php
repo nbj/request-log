@@ -14,6 +14,8 @@ return [
 
     'enabled' => env('REQUEST_LOG_ENABLED', false),
 
+    'truncateBodyLength' => env('REQUEST_LOG_TRUNCATE_BODY_LENGTH', 10000), // Truncate the length of body of request or response to maximum this size.
+
     /*
     | Set of headers and query parameters to redact from the log
     */
