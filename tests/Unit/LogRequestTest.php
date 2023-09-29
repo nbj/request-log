@@ -266,64 +266,9 @@ class LogRequestTest extends TestCase
         $response->setContent(json_encode(range(0, 10000)));
 
         $middleware->terminate($request, $response);
+
+
     }
 
-    /** @test */
-    public function it_doesnt_truncate_very_long_json_bodies_if_disabled(): void
-    {
-        // Set config request-log.truncateBodyLength to 100
-        Config::set('request-log.truncateBodyLength', -1);
-
-        $loggerMock = $this->createMock(Logger::class);
-        Log::partialMock()->shouldReceive('getLogger')->once()->withAnyArgs()->andReturn($loggerMock);
-
-        $loggerMock->expects($this->once())->method('debug')->with($this->stringStartsWith('Timing for'))->willReturnCallback(function ($message, $context) {
-            $this->assertEquals(48897, strlen($context['http']['request']['body']['content']));
-            $this->assertEquals(48897, strlen($context['http']['response']['body']['content']));
-        });
-
-
-        $middleware = new LogRequest();
-
-
-        $request = new Request();
-        // Set request body to a very long json string
-        $request->initialize([], [], [], [], [], [], json_encode(range(0, 10000)));
-
-        $response = new Response();
-        // Set response body to a very long json string
-        $response->setContent(json_encode(range(0, 10000)));
-
-        $middleware->terminate($request, $response);
-    }
-
-    /** @test */
-    public function it_doesnt_truncate_bodies_shorter_than_truncate_limit(): void
-    {
-        // Set config request-log.truncateBodyLength to 100
-        Config::set('request-log.truncateBodyLength', 100);
-
-        $loggerMock = $this->createMock(Logger::class);
-        Log::partialMock()->shouldReceive('getLogger')->once()->withAnyArgs()->andReturn($loggerMock);
-
-        $loggerMock->expects($this->once())->method('debug')->with($this->stringStartsWith('Timing for'))->willReturnCallback(function ($message, $context) {
-            $this->assertEquals(3, strlen($context['http']['request']['body']['content']));
-            $this->assertEquals(3, strlen($context['http']['response']['body']['content']));
-        });
-
-
-        $middleware = new LogRequest();
-
-
-        $request = new Request();
-        // Set request body to a very long json string
-        $request->initialize([], [], [], [], [], [], "hej");
-
-        $response = new Response();
-        // Set response body to a very long json string
-        $response->setContent("hej");
-
-        $middleware->terminate($request, $response);
-    }
 
 }

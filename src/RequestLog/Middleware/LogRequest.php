@@ -85,10 +85,6 @@ class LogRequest
      */
     protected function truncate(string $string, int $length): string
     {
-        if($length <= 0) {
-            return $string;
-        }
-
         return mb_substr($string, 0, $length);
     }
 
