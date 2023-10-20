@@ -19,7 +19,8 @@
         "nesbot/carbon": "^2.17",
         "illuminate/http": "^10.0",
         "illuminate/support": "^10.0",
-        "cego/elastic-apm-wrapper": "^1.0"
+        "cego/elastic-apm-wrapper": "^1.0",
+        "cego/filebeat-logger": "^2.0"
     },
     "require-dev": {
         "orchestra/testbench": "^8.0",

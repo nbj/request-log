@@ -2,7 +2,9 @@
 
 namespace Cego\RequestLog;
 
+use Cego\FilebeatLoggerFactory;
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Cego\RequestLog\Middleware\LogRequest;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -31,6 +33,19 @@ class RequestLogServiceProvider extends ServiceProvider
         $this->publishAndLoadPackageComponents();
 
         $this->pushGlobalMiddleware();
+
+        if(class_exists(\Swoole\Http\Server::class) && $this->app->bound(\Swoole\Http\Server::class)) {
+            $workerId = resolve(\Swoole\Http\Server::class)->worker_id;
+
+            Config::set('logging.channels.request-logs', [
+                'driver'   => 'custom',
+                'channel'  => 'request-logs',
+                'extras'   => json_decode(env('FILEBEAT_LOGGER_EXTRAS', '{}'), true, 512, JSON_THROW_ON_ERROR),
+                'stream'   => sprintf('%s/request-log-%s.log', config('request-log.octane_log_folder'), $workerId),
+                'rotating' => true,
+                'via'      => FilebeatLoggerFactory::class,
+            ]);
+        }
     }
 
     /**

@@ -11,6 +11,7 @@ use Cego\ElasticApmWrapper\ApmWrapper;
 use Illuminate\Support\Facades\Config;
 use Cego\RequestLog\Utilities\SecurityUtility;
 use Symfony\Component\HttpFoundation\Response;
+use Psr\Log\LoggerInterface;
 
 class LogRequest
 {
@@ -92,6 +93,14 @@ class LogRequest
         return mb_substr($string, 0, $length);
     }
 
+    protected function getLogger(): LoggerInterface
+    {
+        if(class_exists(\Swoole\Http\Server::class) && $this->app->bound(\Swoole\Http\Server::class)) {
+            return Log::channel('request-logs');
+        }
+        return Log::getLogger();
+    }
+
     /**
      * @param Request $request
      * @param Response $response
@@ -105,29 +114,29 @@ class LogRequest
                 return;
             }
 
-            $executionTimeNs = hrtime(true) - $this->startTime;
+        $executionTimeNs = hrtime(true) - $this->startTime;
 
-            $responseHeaders = $response->headers->all();
-            unset($responseHeaders['set-cookie']);
+        $responseHeaders = $response->headers->all();
+        unset($responseHeaders['set-cookie']);
 
-            $truncateBodyLength = config('request-log.truncateBodyLength');
+        $truncateBodyLength = config('request-log.truncateBodyLength');
 
-            (new RequestLog(
-                method: $request->method(),
-                url: $request->url(),
-                root: $request->root(),
-                path: $request->path(),
-                queryString: SecurityUtility::getQueryWithMaskingApplied($request),
-                requestHeaders: SecurityUtility::getHeadersWithMaskingApplied($request),
-                requestCookies: SecurityUtility::getCookiesWithMaskingApplied($this->requestCookies, $request),
-                requestBody: $this->truncate(SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}', $truncateBodyLength),
-                status: $response->getStatusCode(),
-                responseHeaders: $responseHeaders,
-                responseCookies: SecurityUtility::getResponseCookiesWithMaskingApplied($response->headers->getCookies(), $request),
-                responseBody: $this->truncate($response->getContent() ?: '{}', $truncateBodyLength),
-                responseException: $response->exception ?? null,
-                executionTimeNs: $executionTimeNs
-            ))->log(Log::getLogger());
+        (new RequestLog(
+            method: $request->method(),
+            url: $request->url(),
+            root: $request->root(),
+            path: $request->path(),
+            queryString: SecurityUtility::getQueryWithMaskingApplied($request),
+            requestHeaders: SecurityUtility::getHeadersWithMaskingApplied($request),
+            requestCookies: SecurityUtility::getCookiesWithMaskingApplied($this->requestCookies, $request),
+            requestBody: $this->truncate(SecurityUtility::getBodyWithMaskingApplied($request) ?: '{}', $truncateBodyLength),
+            status: $response->getStatusCode(),
+            responseHeaders: $responseHeaders,
+            responseCookies: SecurityUtility::getResponseCookiesWithMaskingApplied($response->headers->getCookies(), $request),
+            responseBody: $this->truncate($response->getContent() ?: '{}', $truncateBodyLength),
+            responseException: $response->exception ?? null,
+            executionTimeNs: $executionTimeNs
+        ))->log($this->getLogger());
 
         } catch (Throwable $throwable) {
             Log::error($throwable);

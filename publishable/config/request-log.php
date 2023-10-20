@@ -51,4 +51,6 @@ return [
         'vendor/*/*',       // Example: vendor/request-logs/1
         'vendor/*/*/*',     // Example: Vendor/request-logs/1/delete
     ],
+
+    'octaneLogFolder' => '/var/www/html/storage/logs/',
 ];
