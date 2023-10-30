@@ -2,8 +2,8 @@
 
 namespace Cego\RequestLog\Data;
 
-use Psr\Log\LoggerInterface;
 use Throwable;
+use Psr\Log\LoggerInterface;
 
 class RequestLog
 {
