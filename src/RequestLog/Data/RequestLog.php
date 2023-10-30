@@ -2,7 +2,7 @@
 
 namespace Cego\RequestLog\Data;
 
-use Exception;
+use Throwable;
 use Psr\Log\LoggerInterface;
 
 class RequestLog
@@ -13,15 +13,15 @@ class RequestLog
         public readonly string $root,
         public readonly string $path,
         public readonly string $queryString,
-        public readonly array $requestHeaders,
-        public readonly array $requestCookies,
+        public readonly array  $requestHeaders,
+        public readonly array  $requestCookies,
         public readonly string $requestBody,
-        public readonly int $status,
-        public readonly array $responseHeaders,
-        public readonly array $responseCookies,
+        public readonly int    $status,
+        public readonly array  $responseHeaders,
+        public readonly array  $responseCookies,
         public readonly string $responseBody,
-        public ?Exception $responseException,
-        public int $executionTimeNs,
+        public ?Throwable      $responseException,
+        public int             $executionTimeNs,
     ) {
     }
 
