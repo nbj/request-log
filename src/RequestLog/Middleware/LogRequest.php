@@ -7,6 +7,7 @@ use Throwable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Cego\RequestLog\Data\RequestLog;
+use Illuminate\Support\Facades\Route;
 use Cego\ElasticApmWrapper\ApmWrapper;
 use Illuminate\Support\Facades\Config;
 use Cego\RequestLog\Utilities\SecurityUtility;
@@ -115,6 +116,7 @@ class LogRequest
             (new RequestLog(
                 method: $request->method(),
                 url: $request->url(),
+                routeUri: Route::getCurrentRoute()?->uri(),
                 root: $request->root(),
                 path: $request->path(),
                 queryString: SecurityUtility::getQueryWithMaskingApplied($request),
